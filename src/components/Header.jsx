@@ -47,16 +47,24 @@ const Middle = styled.div`
   height: 35px;
   display: flex;
   justify-content: space-between;
-  gap: 24px;
 `;
 
-const Middle_text = styled.div`
-  width: 99px;
-  height: 35px;
-  padding: 8px 18px;
+const Middle_text = styled.p`
+  padding: 8px 28px;
   color: #867853;
   font-size: 16px;
   font-weight: 600;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  transition: 0.3s ease-in;
+  :nth-child(1) {
+    background-color: #FFE39A;
+  }
+  :hover {
+    background-color: #FFE39A;
+    cursor: pointer;
+  }
 `;
 
 const Right = styled.div`
