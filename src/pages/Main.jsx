@@ -10,34 +10,30 @@ import Arrow from "../assets/Rev-Arrow.svg";
 const Main = () => {
   return (
     <Body>
-      <Header></Header>
+      <Header />
       <Main_middle>
         <Main_first>
-          <img src={Left} alt="안녕하세여~!" />
+          <SideImg src={Left} alt="캐릭터 좌" />
+          
           <Main_main>
             <Title_box>
-              <img
-                src={Logo}
-                alt="Hear-나를 들어주는 일기장"
-                width={297}
-                height={150}
-              />
+              <LogoImg src={Logo} alt="Hear 로고" />
               <Main_title>
-                <Title_text>털어놓으면</Title_text>
-                <Title_text>일기</Title_text>
-                <Title_text>가 되고, 쌓이면</Title_text>
-                <Title_text>내 마음이 보이는</Title_text>
-                <Title_text>AI 감정 기록 서비스</Title_text>
+                <Title_text>
+                  털어놓으면 <span>일기</span>가 되고,<br className="m-br" /> 
+                  쌓이면 <span>내 마음이 보이는</span> AI 감정 기록 서비스
+                </Title_text>
               </Main_title>
             </Title_box>
             <Btn_box>
               <Login_btn>로그인</Login_btn>
               <Start_btn>
-                시작하기 <img src={Arrow} alt="시작" transform={180} />
+                시작하기 <img src={Arrow} alt="시작" />
               </Start_btn>
             </Btn_box>
           </Main_main>
-          <img src={Right} alt="안녕..하세여.." />
+
+          <SideImg src={Right} alt="캐릭터 우" />
         </Main_first>
       </Main_middle>
     </Body>
@@ -46,7 +42,10 @@ const Main = () => {
 
 const Body = styled.div`
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  overflow-x: hidden; 
+  display: flex;
+  flex-direction: column;
 `;
 
 const Main_middle = styled.div`
@@ -54,86 +53,120 @@ const Main_middle = styled.div`
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 712px;
+  flex: 1;
+  padding: 0 20px;
+  box-sizing: border-box;
 `;
 
 const Main_first = styled.div`
-  width: 1015px;
-  height: 572px;
-  margin: 0;
-  padding: 0;
+  width: 100%;
+  max-width: 1100px; 
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 20px;
 `;
+
+const SideImg = styled.img`
+  width: 200px;
+  height: auto;
+  flex-shrink: 0;
+
+  @media (max-width: 1024px) {
+    display: none; 
+  }
+`;
+
 const Main_main = styled.div`
   width: 535px;
-  height: 303px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  @media (max-width: 535px) {
+    width: 100%;
+  }
 `;
+
 const Title_box = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 166px;
-  margin-bottom: 82px;
+  margin-bottom: 50px;
 `;
+
+const LogoImg = styled.img`
+  width: 297px;
+  height: auto;
+  margin-bottom: 20px;
+  @media (max-width: 350px) {
+    width: 80%;
+  }
+`;
+
 const Main_title = styled.div`
   display: flex;
-  gap: 1px;
+  justify-content: center;
 `;
+
 const Title_text = styled.div`
   font-weight: 600;
   color: #575141;
-  font-size: 20px;
+  font-size: 19px;
+  text-align: center;
   white-space: nowrap;
-  :nth-child(even) {
-    color: #daa005;
+  line-height: 1.4;
+
+  span { color: #DAA005; }
+
+  .m-br { display: none; }
+
+  @media (max-width: 600px) {
+    white-space: normal;
+    word-break: keep-all;
+    .m-br { display: block; }
   }
 `;
+
 const Btn_box = styled.div`
-  width: 346px;
-  height: 55px;
   display: flex;
-  justify-content: space-between;
+  gap: 15px;
+  justify-content: center;
   align-items: center;
 `;
+
 const Login_btn = styled.button`
-  width: 138px;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #575141;
-  background-color: #ffffff;
+  width: 138px; 
+  height: 55px;
+  background: #fff;
   border: 2px solid #fcd671;
   border-radius: 12px;
   font-weight: 600;
-  transition: 0.2s ease-in-out;
-  :hover {
-    background-color: #fcd671;
-    color: #fff;
+  color: #575141;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  @media (max-width: 380px) {
+    width: 110px; 
   }
 `;
+
 const Start_btn = styled.button`
   width: 176px;
-  height: 100%;
+  height: 55px;
+  background: #fcd671;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  color: #575141;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 48px;
-  background-color: #fcd671;
-  color: #575141;
-  border: none;
-  font-weight: 600;
-  border-radius: 12px;
-  transition: 0.2s ease-out;
-  overflow: auto;
-  :hover {
-    background-color: #c7a443;
-    color: #fff;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  @media (max-width: 380px) {
+    width: 140px;
   }
 `;
 
