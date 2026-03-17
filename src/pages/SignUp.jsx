@@ -52,7 +52,7 @@ const SignUp = () => {
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn>화원가입</Login_btn>
+                  <Login_btn>회원가입</Login_btn>
                   <Check_in>
                     <Check_text>계정이 있으신가요?</Check_text>
                     <Check_account>로그인</Check_account>
@@ -114,6 +114,7 @@ const Arrow_btn = styled.img`
   position: absolute;
   left: 44px;
   top: 24px;
+  cursor: pointer;
 `;
 
 const Login_main = styled.div`
@@ -182,6 +183,13 @@ const Email_check_btn = styled.button`
   background-color: #FCD671;
   font-size: 16px;
   font-weight: 600;
+  transition: 0.1s ease-in;
+    :hover {
+    color: white;
+    background-color: #daa005;
+    cursor: pointer;
+  }
+  
 `
 const Email_check_box = styled.div`
   width: 392px;
@@ -223,6 +231,7 @@ const Check_timer = styled.p`
   align-items: center;
   height: 42px;
   margin-bottom: 2px;
+  color: #DAA005;
 `
 const Password_box = styled.div`
 width: 392px;
