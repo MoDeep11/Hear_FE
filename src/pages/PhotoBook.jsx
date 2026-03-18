@@ -94,7 +94,6 @@ const Body = styled.div`
 
 const Photo_Main = styled.div`
   width: 100%;
-  height: 712px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -103,8 +102,9 @@ const Photo_Main = styled.div`
 `;
 
 const Time_box = styled.div`
-  width: 212px;
   height: 29px;
+  padding: 0 294px;
+  gap: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
