@@ -18,7 +18,7 @@ const SignUp = () => {
             <Out_login>
               <Arrow_btn src={Arrow} alt="나가기"></Arrow_btn>
               <Login_main>
-                <Login_title>sign in</Login_title>
+                <Login_title>sign up</Login_title>
                 <Email_box>
                   <Email_title>이메일</Email_title>
                   <Email_input>
@@ -27,7 +27,7 @@ const SignUp = () => {
                   </Email_input>
                   <Email_check_box>
                     <Email_check_input placeholder="발송된 인증 코드를 입력해주세요"></Email_check_input>
-                    <Check_timer></Check_timer>
+                    <Check_timer>3:00</Check_timer>
                   </Email_check_box>
                 </Email_box>
                 <Password_box>
@@ -52,7 +52,7 @@ const SignUp = () => {
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn>화원가입</Login_btn>
+                  <Login_btn>회원가입</Login_btn>
                   <Check_in>
                     <Check_text>계정이 있으신가요?</Check_text>
                     <Check_account>로그인</Check_account>
@@ -114,15 +114,17 @@ const Arrow_btn = styled.img`
   position: absolute;
   left: 44px;
   top: 24px;
+  cursor: pointer;
 `;
 
 const Login_main = styled.div`
   width: 322px;
-  height: 378px;
+  height: 433px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
+  padding: 0;
 `;
 
 const Login_title = styled.p`
@@ -137,7 +139,7 @@ const Login_title = styled.p`
 const Email_box = styled.div`
   width: 392px;
   height: auto;
-  gap: 4px;
+  gap: 16px;
   display: flex;
   flex-direction: column;
   align-items: baseline;
@@ -150,11 +152,14 @@ const Email_title = styled.p`
 `;
 
 const Email_input = styled.div`
-    
+    width: 100%;
+    display: flex;
+    gap: 12px;
+    align-items: center;
 `
 const Email_text = styled.input`
-  width: 392px;
-  height: 42px;
+  width: 280px;
+  height: 39px;
   border: 1px solid #bdbdbd;
   padding-left: 16px;
   font-size: 16px;
@@ -169,36 +174,45 @@ const Email_text = styled.input`
     outline: none;
   }
 `;
-const Email_check_btn = styled.button``
-const Email_check_box = styled.div``
-const Email_check_input = styled.input``
-const Check_timer = styled.p``
-const Password_box = styled.div`
-  width: 392px;
-  height: auto;
-  gap: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: baseline;
-  margin-bottom: 16px;
-`;
-const Password_title = styled.p`
+const Email_check_btn = styled.button`
+  width: 100px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
   color: #575141;
+  background-color: #FCD671;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.1s ease-in;
+    :hover {
+    color: white;
+    background-color: #daa005;
+    cursor: pointer;
+  }
+  
+`
+const Email_check_box = styled.div`
+  width: 392px;
+  height: 39px;
+  border: 1px solid #bdbdbd;
+  padding: 0 16px;
   font-size: 16px;
   font-weight: 500;
-`;
-const Password_input = styled.div`
-  width: 392px;
-  height: 42px;
-  border: 1px solid #bdbdbd;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  padding: 16px;
-  border-radius: 12px;
-`;
-const Password_text = styled.input`
-  width: 392px;
-  height: 38px;
+  overflow: hidden;
+  box-sizing: border-box;
+  ::placeholder {
+    color: #bdbdbd;
+  }
+  :focus {
+    outline: none;
+  }
+`
+const Email_check_input = styled.input`
+  width: 360px;
+  height: 100%;
   border: none;
   font-size: 16px;
   font-weight: 500;
@@ -211,7 +225,53 @@ const Password_text = styled.input`
   :focus {
     outline: none;
   }
+`
+const Check_timer = styled.p`
+  display: flex;
+  align-items: center;
+  height: 42px;
+  margin-bottom: 2px;
+  color: #DAA005;
+`
+const Password_box = styled.div`
+width: 392px;
+height: auto;
+gap: 4px;
+display: flex;
+flex-direction: column;
+align-items: baseline;
 `;
+const Password_title = styled.p`
+color: #575141;
+font-size: 16px;
+font-weight: 500;
+`;
+const Password_input = styled.div`
+  width: 392px;
+  height: 42px;
+  border: 1px solid #BDBDBD;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  border-radius: 12px;
+`
+const Password_text = styled.input`
+width: 392px;
+height: 38px;
+border: none;
+font-size: 16px;
+font-weight: 500;
+border-radius: 12px;
+display: flex;
+align-items: center;
+::placeholder{
+  color: #BDBDBD;
+}
+:focus {
+  outline: none;
+}
+`;
+
 const Btn_box = styled.div`
   width: 392px;
   width: 66px;
@@ -262,6 +322,8 @@ const Check_account = styled.p`
     color: #fcd671;
     cursor: pointer;
   }
-`;
+`
+
+
 
 export default SignUp;
