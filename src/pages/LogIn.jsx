@@ -17,7 +17,7 @@ const Login = () => {
             <Out_login>
               <Arrow_btn src={Arrow} alt="나가기"></Arrow_btn>
               <Login_main>
-                <Login_title>sign in</Login_title>
+                <Login_title>Log in</Login_title>
                 <Email_box>
                   <Email_title>이메일</Email_title>
                   <Email_text placeholder="이메일을 입력해주세요"></Email_text>
