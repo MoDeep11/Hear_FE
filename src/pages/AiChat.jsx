@@ -4,6 +4,10 @@ import Header from "../components/Header";
 import Send from "../assets/send.svg";
 import Plus from "../assets/ic_round-plus.svg";
 import Voice from "../assets/voice.svg";
+import Close from "../assets/CloseButton.svg";
+import AiVoice from "../assets/AiVoice.svg";
+import StartVoice from "../assets/StartVoice.svg";
+import StopVoice from "../assets/StopVoice.svg";
 
 const INITIAL_MESSAGES = [
   {
@@ -20,8 +24,21 @@ const INITIAL_MESSAGES = [
 
 const AiChat = () => {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
+  const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
+  const [isStart, setIsStart] = useState(StartVoice);
+  const [isClicked, setIsClicked] = useState(false);
   const bottomRef = useRef(null);
+
+  const handleClick = () => {
+    if (isClicked) {
+      setIsStart(StartVoice);
+      setIsClicked(false); // 초기 상태 false 일 땐 초기 상태 이미지 src
+    } else {
+      setIsStart(StopVoice);
+      setIsClicked(true); // true일 땐 변경될 이미지 src
+    }
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -73,7 +90,7 @@ const AiChat = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            <MicButton type="button">
+            <MicButton onClick={() => setIsOpen(true)} type="button">
               <img src={Voice} alt="" />
             </MicButton>
           </SendInputBox>
@@ -82,6 +99,25 @@ const AiChat = () => {
           </SendButton>
         </SendForm>
       </SendFormWrapper>
+      {isOpen && (
+        <ModalOverlay onClick={() => setIsOpen(false)}>
+          <AiVoiceBody onClick={(e) => e.stopPropagation()}>
+            <CloseIcon
+              src={Close}
+              alt="닫기"
+              onClick={() => setIsOpen(false)}
+            />
+            <AiVoiceContainer>
+              <AiCharacterImg src={AiVoice} alt="Ai 음성" />
+              <StartVoiceImg
+                src={isStart}
+                alt="음성 시작"
+                onClick={handleClick}
+              />
+            </AiVoiceContainer>
+          </AiVoiceBody>
+        </ModalOverlay>
+      )}
     </Body>
   );
 };
@@ -202,6 +238,59 @@ const SendButton = styled.button`
     width: 20px;
     height: 20px;
   }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+`;
+
+const AiVoiceBody = styled.div`
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  width: 800px;
+  height: 500px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CloseIcon = styled.img`
+  width: 15px;
+  height: 15px;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+`;
+
+const AiVoiceContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 60px 0;
+  box-sizing: border-box;
+`;
+
+const AiCharacterImg = styled.img`
+  margin-top: auto;
+  height: auto;
+`;
+
+const StartVoiceImg = styled.img`
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  margin-top: auto;
 `;
 
 export default AiChat;
