@@ -1,26 +1,30 @@
 import styled from "@emotion/styled";
 import Logo from "../assets/logo.svg";
 import Log from "../assets/Login.svg";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate()
+
   return (
     <HeaderBody>
-      <HeaderLeft>
+      <HeaderLeft onClick={() => navigate("/")}>
         <img src={Logo} alt="HEAR_FOR_YOU" />
       </HeaderLeft>
       
       <HeaderMiddle>
-        <MenuText>홈</MenuText>
-        <MenuText>AI일기</MenuText>
-        <MenuText>사진첩</MenuText>
-        <MenuText>통계</MenuText>
+        <MenuText onClick={() => navigate("/home")}>홈</MenuText>
+        <MenuText onClick={() => navigate("/ai_chat")}>AI일기</MenuText>
+        <MenuText onClick={() => navigate("/photo")}>사진첩</MenuText>
+        <MenuText onClick={() => navigate("/statics")}>통계</MenuText>
       </HeaderMiddle>
       
       <HeaderRight>
         <LoginImgBox>
           <img src={Log} alt="Login" />
         </LoginImgBox>
-        <LoginText>로그인</LoginText>
+        <LoginText onClick={() => navigate("/login")}>로그인</LoginText>
       </HeaderRight>
     </HeaderBody>
   );
@@ -33,11 +37,11 @@ const HeaderBody = styled.div`
   display: flex;
   justify-content: space-between; 
   align-items: center;
-  padding: 0 80px; /* 데스크탑 여백 유지 */
+  padding: 0 80px; 
   box-sizing: border-box;
 
   @media (max-width: 1024px) {
-    padding: 0 30px; /* 화면 줄어들면 여백만 먼저 축소 */
+    padding: 0 30px; 
   }
 `;
 
@@ -45,22 +49,23 @@ const HeaderLeft = styled.div`
   width: 75px;
   height: 35px;
   flex-shrink: 0;
+  cursor: pointer;
 `;
 
 const HeaderMiddle = styled.div`
-  width: 423px; /* 기존 디자인 수치 고정 */
+  width: 423px; 
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin: 0 auto; /* 로고와 로그인 사이 정중앙 배치 */
+  margin: 0 auto;
 
   @media (max-width: 768px) {
-    max-width: 320px; /* 폰 화면에서 메뉴 간격 축소 */
+    max-width: 320px;
   }
 `;
 
 const MenuText = styled.p`
-  padding: 8px 28px; /* 기존 디자인 여백 유지 */
+  padding: 8px 28px;
   color: #867853;
   font-size: 16px;
   font-weight: 600;
@@ -89,6 +94,7 @@ const HeaderRight = styled.div`
   gap: 3px;
   padding: 8px 5px;
   flex-shrink: 0;
+  cursor: pointer;
 `;
 
 const LoginImgBox = styled.div`

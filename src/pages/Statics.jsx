@@ -2,6 +2,8 @@ import styled from "@emotion/styled";
 import Header from "../components/Header.jsx";
 import ReverseArrow from "../assets/Rev-Arrow.svg";
 import Arrow from "../assets/Arrow.svg";
+import Happy from "../assets/Star.svg";
+import Tail from "../assets/Tr.png";
 
 const Statics = () => {
   const colors = ["#FEA2A9", "#FCD671", "#5DC19B", "#89D9FF", "#CBA3FF"];
@@ -23,11 +25,12 @@ const Statics = () => {
         <Static_Main>
           <Static_Graphbox>
             <Static_circlebox>
-              <Circle_graph></Circle_graph>
-              <Circle_status>
-                <Status_text>일기 작성률</Status_text>
-                <Status_percent>60%</Status_percent>
-              </Circle_status>
+              <Circle_graph>
+                <Circle_status>
+                  <Status_text>일기 작성률</Status_text>
+                  <Status_percent>60%</Status_percent>
+                </Circle_status>
+              </Circle_graph>
             </Static_circlebox>
             <Static_stickbox>
               <Stick_status>
@@ -60,8 +63,18 @@ const Statics = () => {
             </Static_stickbox>
           </Static_Graphbox>
           <Static_Message>
-            <Message>메세지에요!</Message>
-            <Character>캐릭터</Character>
+            <Message>
+              최히원 님, 이번 달은 전반적으로 '행복'한 날이 많았네요! 특히
+              주말에 사진 기록이 활발했습니다. 승리 님, 이번 달은 전반적으로
+              '행복'한 날이 많았네요! 특히 주말에 사진 기록이 활발했습니다. 승리
+              님, 이번 달은 전반적으로 '행복'한 날이 많았네요! 특히 주말에 사진
+              기록이 활발했습니다.
+            </Message>
+            <Message_tr></Message_tr>
+            <Message_tr></Message_tr>
+            <Character>
+              <img src={Happy} alt="" />
+            </Character>
           </Static_Message>
         </Static_Main>
       </Main_box>
@@ -81,6 +94,7 @@ const Main_box = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 42px;
 `;
 
 const Date_box = styled.div`
@@ -112,7 +126,6 @@ const Left_Arrow = styled.div`
 const Static_Main = styled.div`
   width: 1206px;
   height: 534px;
-  background-color: bisque;
   display: flex;
   flex-direction: column;
   gap: 42px;
@@ -122,7 +135,6 @@ const Static_Graphbox = styled.div`
   width: 100%;
   height: 370px;
   display: flex;
-  background-color: aqua;
   gap: 42px;
 `;
 
@@ -135,15 +147,44 @@ const Static_circlebox = styled.div`
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
+  padding: 45px;
 `;
 
-const Circle_graph = styled.div``;
+const Circle_graph = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(#f3f3f3 0% 40%, #fcd671 40% 100%);
+  border: 2px solid #e0e0e0;
+`;
 
-const Circle_status = styled.div``;
+const Circle_status = styled.div`
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+`;
 
-const Status_text = styled.div``;
+const Status_text = styled.div`
+  color: #333333;
+  font-size: 16px;
+  font-weight: 500;
+`;
 
-const Status_percent = styled.div``;
+const Status_percent = styled.div`
+  font-size: 20px;
+  color: #daa005;
+  font-weight: 600;
+`;
 
 const Static_stickbox = styled.div`
   width: 794px;
@@ -212,27 +253,27 @@ const Emotion_li = styled.li`
   color: #828282;
   margin-left: 4px;
 
-  :nth-child(1) {
+  :nth-of-type(1) {
     ::marker {
       color: #fea2a9;
     }
   }
-  :nth-child(2) {
+  :nth-of-type(2) {
     ::marker {
       color: #fcd671;
     }
   }
-  :nth-child(3) {
+  :nth-of-type(3) {
     ::marker {
       color: #5dc19b;
     }
   }
-  :nth-child(4) {
+  :nth-of-type(4) {
     ::marker {
       color: #89d9ff;
     }
   }
-  :nth-child(5) {
+  :nth-of-type(5) {
     ::marker {
       color: #cba3ff;
     }
@@ -268,17 +309,44 @@ const Emotion_bar = styled.div`
   width: 100%;
   height: 100%;
   border-radius: 12px;
-  background-color: ${props => props.bgColor};
+  background-color: ${(props) => props.bgColor};
 `;
 
 const Static_Message = styled.div`
   width: 100%;
   height: 122px;
   display: flex;
+  gap: 38px;
+  align-items: center;
 `;
 
 const Message = styled.div`
-  background-image: url(../assets/Text_bubble.svg);
+  width: 100%;
+  height: 100%;
+  background-color: #fff9eb;
+  color: #575141;
+  padding: 31px 185px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  flex-wrap: wrap;
+  border-radius: 12px;
+  border: 2px solid #e5d7b2;
+`;
+
+const Message_tr = styled.div`  
+position: absolute;
+right: 280px;
+width: 0;
+height: 0;
+border-style: solid;
+border-width: 19px 0px 19px 24px;
+border-color: transparent transparent transparent #fff9eb;
+:nth-of-type(2){
+  border-width: 20.5px 0px 20.5px 26px;
+  border-color: transparent transparent transparent #e5d7b2;
+  right: 278px;
+}
 `;
 
 const Character = styled.div``;
