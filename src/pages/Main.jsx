@@ -6,8 +6,12 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Logo from "../assets/logo.svg";
 import Arrow from "../assets/Rev-Arrow.svg";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Main = () => {
+  const navigate = useNavigate()
+
   return (
     <Body>
       <Header />
@@ -26,8 +30,8 @@ const Main = () => {
               </Main_title>
             </Title_box>
             <Btn_box>
-              <Login_btn>로그인</Login_btn>
-              <Start_btn>
+              <Login_btn onClick={() => navigate("/login")}>로그인</Login_btn>
+              <Start_btn onClick={() => navigate("/signup")}>
                 시작하기 <img src={Arrow} alt="시작" />
               </Start_btn>
             </Btn_box>

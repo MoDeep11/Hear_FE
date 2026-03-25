@@ -5,8 +5,12 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg"
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate()
+
   return (
     <Body>
       <Header></Header>
@@ -32,10 +36,10 @@ const Login = () => {
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn>로그인</Login_btn>
+                  <Login_btn onClick={() => navigate("/home")}>로그인</Login_btn>
                   <Check_in>
                     <Check_text>계정이 없으신가요?</Check_text>
-                    <Check_account>회원가입</Check_account>
+                    <Check_account onClick={() => navigate("/signup")}>회원가입</Check_account>
                   </Check_in>
                 </Btn_box>
               </Login_main>

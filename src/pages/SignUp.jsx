@@ -6,8 +6,12 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 const SignUp = () => {
+  const navigate = useNavigate();
+
   return (
     <Body>
       <Header></Header>
@@ -16,7 +20,7 @@ const SignUp = () => {
           <img src={Left} alt="로그인 하세여~" />
           <Login_box>
             <Out_login>
-              <Arrow_btn src={Arrow} alt="나가기"></Arrow_btn>
+              <Arrow_btn onClick={() => navigate("/")} src={Arrow} alt="나가기"></Arrow_btn>
               <Login_main>
                 <Login_title>sign up</Login_title>
                 <Email_box>
@@ -52,10 +56,10 @@ const SignUp = () => {
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn>회원가입</Login_btn>
+                  <Login_btn onClick={() => navigate("/login")}>회원가입</Login_btn>
                   <Check_in>
                     <Check_text>계정이 있으신가요?</Check_text>
-                    <Check_account>로그인</Check_account>
+                    <Check_account onClick={() => navigate("/login")}>로그인</Check_account>
                   </Check_in>
                 </Btn_box>
               </Login_main>
