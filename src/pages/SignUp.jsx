@@ -152,11 +152,11 @@ const Email_title = styled.p`
 `;
 
 const Email_input = styled.div`
-    width: 100%;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-`
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+`;
 const Email_text = styled.input`
   width: 280px;
   height: 39px;
@@ -180,17 +180,16 @@ const Email_check_btn = styled.button`
   border: none;
   border-radius: 12px;
   color: #575141;
-  background-color: #FCD671;
+  background-color: #fcd671;
   font-size: 16px;
   font-weight: 600;
   transition: 0.1s ease-in;
-    :hover {
+  :hover {
     color: white;
     background-color: #daa005;
     cursor: pointer;
   }
-  
-`
+`;
 const Email_check_box = styled.div`
   width: 392px;
   height: 39px;
@@ -209,7 +208,7 @@ const Email_check_box = styled.div`
   :focus {
     outline: none;
   }
-`
+`;
 const Email_check_input = styled.input`
   width: 360px;
   height: 100%;
@@ -225,51 +224,50 @@ const Email_check_input = styled.input`
   :focus {
     outline: none;
   }
-`
+`;
 const Check_timer = styled.p`
   display: flex;
   align-items: center;
   height: 42px;
   margin-bottom: 2px;
-  color: #DAA005;
-`
+  color: #daa005;
+`;
 const Password_box = styled.div`
-width: 392px;
-height: auto;
-gap: 4px;
-display: flex;
-flex-direction: column;
-align-items: baseline;
+  width: 392px;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  margin-bottom: 16px;
 `;
 const Password_title = styled.p`
-color: #575141;
-font-size: 16px;
-font-weight: 500;
+  color: #575141;
+  font-size: 16px;
+  font-weight: 500;
 `;
 const Password_input = styled.div`
   width: 392px;
   height: 42px;
-  border: 1px solid #BDBDBD;
+  border: 1px solid #bdbdbd;
   display: flex;
   align-items: center;
   padding: 16px;
   border-radius: 12px;
-`
+`;
 const Password_text = styled.input`
-width: 392px;
-height: 38px;
-border: none;
-font-size: 16px;
-font-weight: 500;
-border-radius: 12px;
-display: flex;
-align-items: center;
-::placeholder{
-  color: #BDBDBD;
-}
-:focus {
-  outline: none;
-}
+  width: 392px;
+  height: 38px;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  ::placeholder {
+    color: #bdbdbd;
+  }
+  :focus {
+    outline: none;
+  }
 `;
 
 const Btn_box = styled.div`
@@ -322,8 +320,6 @@ const Check_account = styled.p`
     color: #fcd671;
     cursor: pointer;
   }
-`
-
-
+`;
 
 export default SignUp;
