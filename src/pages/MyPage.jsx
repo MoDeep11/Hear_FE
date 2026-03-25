@@ -388,7 +388,7 @@ const Modal_main = styled.div`
   justify-content: space-between;
 `;
 const Sadness = styled.div``;
-const Delete_textbox = styled.p`
+const Delete_textbox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
