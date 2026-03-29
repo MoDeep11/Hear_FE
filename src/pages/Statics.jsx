@@ -9,18 +9,25 @@ import { useState, useEffect } from "react";
 const Statics = () => {
   const colors = ["#FEA2A9", "#FCD671", "#5DC19B", "#89D9FF", "#CBA3FF"];
 
-  const [dateNum, setDateNum] = useState(1)
-  const [yearNum, setYearNum] = useState(2026)
+  const [dateNum, setDateNum] = useState(1);
+  const [yearNum, setYearNum] = useState(2026);
 
   const date_minus = () => {
-    if (dateNum > 1) setDateNum(dateNum-1)
-    if (dateNum <= 1) setDateNum(12), setYearNum(yearNum-1)
-  }
-const date_plus = () => {
-  if (dateNum < 12) setDateNum(dateNum+1)
-  if (dateNum >= 12) setDateNum(1), setYearNum(yearNum+1)
-}
-  
+    if (dateNum > 1) {
+      setDateNum(dateNum - 1);
+    } else {
+      setDateNum(12);
+      setYearNum(yearNum - 1);
+    }
+  };
+  const date_plus = () => {
+    if (dateNum < 12) {
+      setDateNum(dateNum + 1);
+    }
+    if (dateNum >= 12) {
+      (setDateNum(1), setYearNum(yearNum + 1));
+    }
+  };
 
   return (
     <Body>
@@ -351,19 +358,19 @@ const Message = styled.div`
   border: 2px solid #e5d7b2;
 `;
 
-const Message_tr = styled.div`  
-position: absolute;
-right: 280px;
-width: 0;
-height: 0;
-border-style: solid;
-border-width: 19px 0px 19px 24px;
-border-color: transparent transparent transparent #fff9eb;
-:nth-of-type(2){
-  border-width: 20.5px 0px 20.5px 26px;
-  border-color: transparent transparent transparent #e5d7b2;
-  right: 278px;
-}
+const Message_tr = styled.div`
+  position: absolute;
+  right: 280px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 19px 0px 19px 24px;
+  border-color: transparent transparent transparent #fff9eb;
+  :nth-of-type(2) {
+    border-width: 20.5px 0px 20.5px 26px;
+    border-color: transparent transparent transparent #e5d7b2;
+    right: 278px;
+  }
 `;
 
 const Character = styled.div``;

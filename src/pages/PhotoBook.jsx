@@ -13,12 +13,20 @@ const Photo_Book = () => {
   const [yearNum, setYearNum] = useState(2026);
 
   const date_minus = () => {
-    if (dateNum > 1) setDateNum(dateNum - 1);
-    if (dateNum <= 1) (setDateNum(12), setYearNum(yearNum - 1));
+    if (dateNum > 1) {
+      setDateNum(dateNum - 1);
+    }
+    if (dateNum <= 1) {
+      (setDateNum(12), setYearNum(yearNum - 1));
+    }
   };
   const date_plus = () => {
-    if (dateNum < 12) setDateNum(dateNum + 1);
-    if (dateNum >= 12) (setDateNum(1), setYearNum(yearNum + 1));
+    if (dateNum < 12) {
+      setDateNum(dateNum + 1);
+    }
+    if (dateNum >= 12) {
+      (setDateNum(1), setYearNum(yearNum + 1));
+    }
   };
 
   return (
@@ -34,7 +42,7 @@ const Photo_Book = () => {
         </Time_box>
         <Search_box>
           <Search_bar placeholder="해시태그를 검색해주세요"></Search_bar>
-          <img src={Search_tag} alt=""  />
+          <img src={Search_tag} alt="" />
         </Search_box>
 
         <Photo_box>
