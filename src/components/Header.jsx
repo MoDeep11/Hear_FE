@@ -17,7 +17,7 @@ const Header = () => {
       <HeaderMiddle>
         <MenuText onClick={() => navigate("/home")} isActive={location.pathname === "/home"}>홈</MenuText>
         <MenuText onClick={() => navigate("/ai/chats")} isActive={location.pathname === "/ai/chats"}>AI일기</MenuText>
-        <MenuText onClick={() => navigate("/photobook")} isActive={location.pathname === "/photo"}>사진첩</MenuText>
+        <MenuText onClick={() => navigate("/photobook")} isActive={location.pathname === "/photobook"}>사진첩</MenuText>
         <MenuText onClick={() => navigate("/statics")} isActive={location.pathname === "/statics"}>통계</MenuText>
       </HeaderMiddle>
       
