@@ -4,7 +4,6 @@ import Login from "./pages/LogIn.jsx";
 import Signup from "./pages/SignUp.jsx";
 import AiChat from "./pages/AiChat";
 import Diary from "./pages/Diary.jsx";
-// import AiChat from "./pages/AiChat";
 import Photo_book from "./pages/PhotoBook.jsx";
 import Mypage from "./pages/MyPage.jsx";
 import Statics from "./pages/Statics.jsx";
@@ -18,12 +17,10 @@ function App() {
       <Route path="/signup" element={<Signup />} />
       <Route path="/ai/chats" element={<AiChat />} />
       <Route path="/diary" element={<Diary />} />
-      <Route path="/Login" element={<Login />} />
-      <Route path="/Signup" element={<Signup />} />
-      {/* <Route path="/ai/chats" element={<AiChat />} /> */}
-      <Route path="/Mypage" element={<Mypage />} />
-      <Route path="/Statics" element={<Statics />} />
+      <Route path="/mypage" element={<Mypage />} />
+      <Route path="/statics" element={<Statics />} />
       <Route path="/home" element={<Home />} />
+      <Route path="/photobook" element={<Photo_book />} />
     </Routes>
   );
 }
