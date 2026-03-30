@@ -4,8 +4,10 @@ import "react-calendar/dist/Calendar.css";
 import Header from "../components/Header";
 import ArrowRight from "../assets/ArrowRight.svg";
 import NoDiary from "../assets/NoImg.svg";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
   return (
     <Body>
       <Header />
@@ -15,16 +17,9 @@ const Home = () => {
             locale="ko-KR"
             calendarType="gregory"
             formatDay={(locale, date) => date.getDate()}
+            /* formatShortWeekday 수정: API 의도에 맞게 '일요일' -> '일'로 축약 */
             formatShortWeekday={(locale, date) =>
-              [
-                "일요일",
-                "월요일",
-                "화요일",
-                "수요일",
-                "목요일",
-                "금요일",
-                "토요일",
-              ][date.getDay()]
+              ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
             }
           />
         </CalendarWrapper>
@@ -56,7 +51,9 @@ const Home = () => {
             <ImgContainer>
               <TextContainer>
                 <span>최근 사진</span>
-                <ImgTotal>전체보기</ImgTotal>
+                <ImgTotal onClick={() => navigate("/photobook")}>
+                  전체보기
+                </ImgTotal>
               </TextContainer>
               <ImgBox>
                 <NoImg>사진이 없어요...</NoImg>
@@ -76,12 +73,12 @@ const Home = () => {
                 </BubbleContainer>
               </BubbleContainerWrapper>
               <DiaryContainer>
-                <img src={NoDiary} alt="" />
+                <img src={NoDiary} alt="일기 없음 아이콘" />
               </DiaryContainer>
             </NoDiaryContainer>
           </TotalDateBox>
 
-          <AiChatButton>
+          <AiChatButton onClick={() => navigate("/ai/chats")}>
             AI와 일기 작성하러 가기
             <img src={ArrowRight} alt="화살표" />
           </AiChatButton>
@@ -371,7 +368,7 @@ const StartText = styled.span`
   font-weight: 500;
 `;
 
-const ImgTotal = styled.span`
+const ImgTotal = styled.a`
   color: #828282;
   font-size: 12px;
   text-decoration: underline;
