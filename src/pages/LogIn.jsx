@@ -31,6 +31,9 @@ const Login = () => {
       alert("아이디를 입력해주세요");
       return;
     }
+    else {
+      navigate("/home");
+    }
   };
 
   return (
@@ -41,7 +44,7 @@ const Login = () => {
           <img src={Left} alt="로그인 하세여~" />
           <Login_box>
             <Out_login>
-              <Arrow_btn src={Arrow} alt="나가기"></Arrow_btn>
+              <Arrow_btn src={Arrow} alt="나가기" onClick={()=>{navigate("/")}}></Arrow_btn>
               <Login_main>
                 <Login_title>Log in</Login_title>
                 <Email_box>
@@ -72,7 +75,7 @@ const Login = () => {
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn onClick={() => navigate("/home")}>
+                  <Login_btn onClick={() => handleSubmit()}>
                     로그인
                   </Login_btn>
                   <Check_in>
