@@ -8,6 +8,7 @@ import Photo_book from "./pages/PhotoBook.jsx";
 import Mypage from "./pages/MyPage.jsx";
 import Statics from "./pages/Statics.jsx";
 import Home from "./pages/Home.jsx";
+import EditDiary from "./pages/EditDiary.jsx";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       <Route path="/statics" element={<Statics />} />
       <Route path="/home" element={<Home />} />
       <Route path="/photobook" element={<Photo_book />} />
+      <Route path="/editDiary" element={<EditDiary />} />
     </Routes>
   );
 }
