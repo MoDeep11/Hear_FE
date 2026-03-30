@@ -95,9 +95,8 @@ const Mypage = () => {
 
       {/*계정 탈퇴 모달*/}
 {isDeleteModal && 
-      <Delete_modalback>
-        <Modal_main>
-          
+      <Delete_modalback onClick={() => {setIsDeleteModal(false)}}>
+        <Modal_main onClick={(e) => {e.stopPropagation()}}>
           <Delete_textbox>
             <Sadness>
             <img src={Sad} alt="" />
@@ -122,8 +121,8 @@ const Mypage = () => {
 
       {/* 비밀번호 변경 모달 */}
       {isPwModal&&
-      <Password_back>
-        <Password_modal>
+      <Password_back onClick={() => {setIsPwModal(false)}}>
+        <Password_modal onClick={(e) => {e.stopPropagation()}}>
           <Out_modal onClick={()=>{setIsPwModal(false)}}>
             <img src={Arrow} alt="" />
           </Out_modal>
@@ -146,8 +145,8 @@ const Mypage = () => {
 
       {/*프로필 변경 모달*/}
       {isChangeModal &&
-      <Profile_modalback>
-        <Profile_modal>
+      <Profile_modalback onClick={() => {setIsChangeModal(false)}}>
+        <Profile_modal onClick={(e) => {e.stopPropagation()}}>
           <Out_modal onClick={()=>{setIsChangeModal(false)}}>
             <img src={Arrow} alt="" />
           </Out_modal>
