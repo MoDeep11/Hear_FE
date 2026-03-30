@@ -4,23 +4,45 @@ import ReverseArrow from "../assets/Rev-Arrow.svg";
 import Arrow from "../assets/Arrow.svg";
 import Happy from "../assets/Star.svg";
 import Tail from "../assets/Tr.png";
+import { useState, useEffect } from "react";
 
 const Statics = () => {
   const colors = ["#FEA2A9", "#FCD671", "#5DC19B", "#89D9FF", "#CBA3FF"];
+
+  const [dateNum, setDateNum] = useState(1);
+  const [yearNum, setYearNum] = useState(2026);
+
+  const date_minus = () => {
+    if (dateNum > 1) {
+      setDateNum(dateNum - 1);
+    } else {
+      setDateNum(12);
+      setYearNum(yearNum - 1);
+    }
+  };
+  const date_plus = () => {
+    if (dateNum < 12) {
+      setDateNum(dateNum + 1);
+    }
+    if (dateNum >= 12) {
+      (setDateNum(1), setYearNum(yearNum + 1));
+    }
+  };
+
   return (
     <Body>
       <Header />
       <Main_box>
         <Date_box>
-          <Right_arrow>
+          <Left_Arrow onClick={date_minus}>
             <img src={Arrow} alt="" />
-          </Right_arrow>
-          <Date_title>
-            2026년 <span>7</span>월
-          </Date_title>
-          <Left_Arrow>
-            <img src={ReverseArrow} alt="" />
           </Left_Arrow>
+          <Date_title>
+            {yearNum}년 <span>{dateNum}</span>월
+          </Date_title>
+          <Right_arrow onClick={date_plus}>
+            <img src={ReverseArrow} alt="" />
+          </Right_arrow>
         </Date_box>
         <Static_Main>
           <Static_Graphbox>
@@ -108,6 +130,7 @@ const Date_box = styled.div`
 const Right_arrow = styled.div`
   width: 16px;
   height: 16px;
+  cursor: pointer;
 `;
 
 const Date_title = styled.div`
@@ -121,6 +144,7 @@ const Date_title = styled.div`
 const Left_Arrow = styled.div`
   width: 16px;
   height: 16px;
+  cursor: pointer;
 `;
 
 const Static_Main = styled.div`
@@ -334,19 +358,19 @@ const Message = styled.div`
   border: 2px solid #e5d7b2;
 `;
 
-const Message_tr = styled.div`  
-position: absolute;
-right: 280px;
-width: 0;
-height: 0;
-border-style: solid;
-border-width: 19px 0px 19px 24px;
-border-color: transparent transparent transparent #fff9eb;
-:nth-of-type(2){
-  border-width: 20.5px 0px 20.5px 26px;
-  border-color: transparent transparent transparent #e5d7b2;
-  right: 278px;
-}
+const Message_tr = styled.div`
+  position: absolute;
+  right: 280px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 19px 0px 19px 24px;
+  border-color: transparent transparent transparent #fff9eb;
+  :nth-of-type(2) {
+    border-width: 20.5px 0px 20.5px 26px;
+    border-color: transparent transparent transparent #e5d7b2;
+    right: 278px;
+  }
 `;
 
 const Character = styled.div``;

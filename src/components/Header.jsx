@@ -2,10 +2,11 @@ import styled from "@emotion/styled";
 import Logo from "../assets/logo.svg";
 import Log from "../assets/Login.svg";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate()
+  const location = useLocation();
 
   return (
     <HeaderBody>
@@ -14,10 +15,10 @@ const Header = () => {
       </HeaderLeft>
       
       <HeaderMiddle>
-        <MenuText onClick={() => navigate("/home")}>홈</MenuText>
-        <MenuText onClick={() => navigate("/ai_chat")}>AI일기</MenuText>
-        <MenuText onClick={() => navigate("/photo")}>사진첩</MenuText>
-        <MenuText onClick={() => navigate("/statics")}>통계</MenuText>
+        <MenuText onClick={() => navigate("/home")} isActive={location.pathname === "/home"}>홈</MenuText>
+        <MenuText onClick={() => navigate("/ai/chats")} isActive={location.pathname === "/ai/chats"}>AI일기</MenuText>
+        <MenuText onClick={() => navigate("/photobook")} isActive={location.pathname === "/photobook"}>사진첩</MenuText>
+        <MenuText onClick={() => navigate("/statics")} isActive={location.pathname === "/statics"}>통계</MenuText>
       </HeaderMiddle>
       
       <HeaderRight>
@@ -73,8 +74,7 @@ const MenuText = styled.p`
   white-space: nowrap; 
   cursor: pointer;
   transition: 0.2s;
-
-  &:nth-of-type(1) { background-color: #FFE39A; }
+  background-color: ${(props) => (props.isActive ? "#FFE39A" : "transparent")};
   &:hover { background-color: #FFE39A; }
 
   @media (max-width: 850px) {

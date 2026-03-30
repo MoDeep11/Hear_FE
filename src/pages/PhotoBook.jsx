@@ -6,18 +6,39 @@ import Test_img from "../assets/Test.svg";
 import Arrow from "../assets/Arrow.svg";
 import Reverse_Arrow from "../assets/Rev-Arrow.svg";
 import Search_tag from "../assets/search_tag.svg";
+import { useState, useEffect } from "react";
 
 const Photo_Book = () => {
+  const [dateNum, setDateNum] = useState(1);
+  const [yearNum, setYearNum] = useState(2026);
+
+  const date_minus = () => {
+    if (dateNum > 1) {
+      setDateNum(dateNum - 1);
+    }
+    if (dateNum <= 1) {
+      (setDateNum(12), setYearNum(yearNum - 1));
+    }
+  };
+  const date_plus = () => {
+    if (dateNum < 12) {
+      setDateNum(dateNum + 1);
+    }
+    if (dateNum >= 12) {
+      (setDateNum(1), setYearNum(yearNum + 1));
+    }
+  };
+
   return (
     <Body>
       <Header />
       <Photo_Main>
         <Time_box>
-          <img src={Arrow} alt="" />
+          <img src={Arrow} alt="" onClick={date_minus} />
           <Time_line>
-            2026년 <span>7</span>월
+            {yearNum}년 <span>{dateNum}</span>월
           </Time_line>
-          <img src={Reverse_Arrow} alt="" />
+          <img src={Reverse_Arrow} alt="" onClick={date_plus} />
         </Time_box>
         <Search_box>
           <Search_bar placeholder="해시태그를 검색해주세요"></Search_bar>
@@ -75,13 +96,11 @@ const Photo_Book = () => {
             <Photo_date>12일</Photo_date>
             <Photo_layer></Photo_layer>
           </Photo>
-
         </Photo_box>
       </Photo_Main>
     </Body>
   );
 };
-
 
 const Body = styled.div`
   width: 100vw;
@@ -102,6 +121,7 @@ const Photo_Main = styled.div`
 `;
 
 const Time_box = styled.div`
+  max-width: auto;
   height: 29px;
   padding: 0 294px;
   gap: 24px;
@@ -149,11 +169,11 @@ const Search_bar = styled.input`
 
 const Photo_box = styled.div`
   width: 944px;
-  height: auto; 
+  height: auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 48px; 
-  justify-content: flex-start; 
+  gap: 48px;
+  justify-content: flex-start;
   align-content: flex-start;
 `;
 const Photo = styled.div`
@@ -177,15 +197,15 @@ const Photo_layer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  
+
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0) 60%, 
+    rgba(0, 0, 0, 0) 60%,
     rgba(0, 0, 0, 0.5) 100%
   );
-  pointer-events: none; 
+  pointer-events: none;
   z-index: 1;
-`
+`;
 const Photo_date = styled.div`
   position: absolute;
   left: 12px;

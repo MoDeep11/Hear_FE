@@ -10,9 +10,28 @@ import Sad from "../assets/Sadness.svg";
 import Arrow from "../assets/Arrow.svg";
 import Random from "../assets/random.svg"
 import Upload_btnimg from "../assets/Upload_btn.svg"
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Mypage = () => {
 
+  const user_info = {
+  "status": "success",
+  "data": {
+    "userId": 102,
+    "email": "seungri@example.com",
+    "nickname": "쿠수리",
+    "profileImageUrl": "https://s3.../profiles/user_102.png",
+    "createdAt": "2025-06-09T10:00:00Z",
+    "updatedAt": "2026-03-04T23:55:00Z"
+  }
+} 
+
+  const [isChangeModal, setIsChangeModal] = useState(false);
+  const [isDeleteModal, setIsDeleteModal] = useState(false);
+  const [isPwModal, setIsPwModal] = useState(false);
+
+  const navigate = useNavigate()
   
   return (
     <Body>
@@ -21,7 +40,7 @@ const Mypage = () => {
         <Page_main>
           <Info_box>
             <Profile_box>
-              <Profile_img>
+              <Profile_img onClick={()=>{setIsChangeModal(true)}}>
                 <Img_box>
                   <img src={Profile} alt="" />
                 </Img_box>
@@ -31,12 +50,12 @@ const Mypage = () => {
               </Profile_img>
               <Nickname_box>
                 <Nick_name>
-                  최히원
-                  <Nickname_edit>
+                  {user_info.data.nickname}
+                  <Nickname_edit onClick={()=>{setIsChangeModal(true)}}>
                     <img src={Edit_pen} alt="" />
                   </Nickname_edit>
                 </Nick_name>
-                <Email>choi_hw1025@gmail.com</Email>
+                <Email>{user_info.data.email}</Email>
               </Nickname_box>
             </Profile_box>
             <Check_box>
@@ -48,14 +67,14 @@ const Mypage = () => {
               </Email_box>
               <Password_change>
                 <Password_text>비밀번호 변경</Password_text>
-                <Password_click>
+                <Password_click onClick={()=>{setIsPwModal(true)}}>
                   <img src={ReverseArrow} alt="" />
                 </Password_click>
               </Password_change>
             </Check_box>
             <Log_box>
-              <Log_out>로그아웃</Log_out>
-              <User_delete>회원 탈퇴</User_delete>
+              <Log_out onClick={()=>{navigate("/")}}>로그아웃</Log_out>
+              <User_delete onClick={()=>{setIsDeleteModal(true)}}>회원 탈퇴</User_delete>
             </Log_box>
           </Info_box>
           <Guitar_box>
@@ -75,10 +94,9 @@ const Mypage = () => {
       </Page_container>
 
       {/*계정 탈퇴 모달*/}
-
-      <Delete_modalback>
-        <Modal_main>
-          
+{isDeleteModal && 
+      <Delete_modalback onClick={() => {setIsDeleteModal(false)}}>
+        <Modal_main onClick={(e) => {e.stopPropagation()}}>
           <Delete_textbox>
             <Sadness>
             <img src={Sad} alt="" />
@@ -93,17 +111,19 @@ const Mypage = () => {
             
           </Delete_textbox>
 
-          <Delete_btnbox>
-            <Delete_button>회원탈퇴</Delete_button>
-            <Cancel_button>취소</Cancel_button>
+          <Delete_btnbox >
+            <Delete_button onClick={()=>{navigate("/")}}>회원탈퇴</Delete_button>
+            <Cancel_button onClick={()=>{setIsDeleteModal(false)}}>취소</Cancel_button>
           </Delete_btnbox>
         </Modal_main>
       </Delete_modalback>
+}
 
       {/* 비밀번호 변경 모달 */}
-      <Password_back>
-        <Password_modal>
-          <Out_modal>
+      {isPwModal&&
+      <Password_back onClick={() => {setIsPwModal(false)}}>
+        <Password_modal onClick={(e) => {e.stopPropagation()}}>
+          <Out_modal onClick={()=>{setIsPwModal(false)}}>
             <img src={Arrow} alt="" />
           </Out_modal>
           <Change_box>
@@ -117,15 +137,17 @@ const Mypage = () => {
                 <Check_input placeholder="변경할 비밀번호를 다시 입력해주세요"></Check_input>
               </Checking_box>
             </Input_box>
-            <Save_button>저장</Save_button>
+            <Save_button onClick={()=>{setIsPwModal(false)}}>저장</Save_button>
           </Change_box>
         </Password_modal>
       </Password_back>
+}
 
       {/*프로필 변경 모달*/}
-      <Profile_modalback>
-        <Profile_modal>
-          <Out_modal>
+      {isChangeModal &&
+      <Profile_modalback onClick={() => {setIsChangeModal(false)}}>
+        <Profile_modal onClick={(e) => {e.stopPropagation()}}>
+          <Out_modal onClick={()=>{setIsChangeModal(false)}}>
             <img src={Arrow} alt="" />
           </Out_modal>
           <Pf_modalmain>
@@ -148,11 +170,12 @@ const Mypage = () => {
               <img src={Upload_btnimg} alt="" width={16} height={16}/>
               파일 업로드
               </Img_upload>
-              <Save_btn>저장</Save_btn>
+              <Save_btn onClick={()=>{setIsChangeModal(false)}}>저장</Save_btn>
             </Profile_btnbox>
           </Pf_modalmain>
         </Profile_modal>
       </Profile_modalback>
+}
     </Body>
   );
 };
@@ -212,6 +235,7 @@ const Profile_img = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
+  cursor: pointer;
 `;
 const Img_box = styled.div`
   width: 40px;
@@ -229,7 +253,7 @@ const Nickname_box = styled.div`
   display: flex;
   flex-direction: column;
 `;
-const Nick_name = styled.p`
+const Nick_name = styled.div`
   display: flex;
   font-size: 24px;
   font-weight: 700;
@@ -239,6 +263,7 @@ const Nick_name = styled.p`
 `;
 const Nickname_edit = styled.div`
   display: flex;
+  cursor: pointer;
 `;
 const Email = styled.p`
   color: #828282;
@@ -303,7 +328,9 @@ const Password_text = styled.div`
   font-size: 16px;
   font-weight: 500;
 `;
-const Password_click = styled.div``;
+const Password_click = styled.div`
+  cursor: pointer;
+`;
 const Log_box = styled.div`
   width: 100%;
   display: flex;
@@ -317,11 +344,13 @@ const Log_out = styled.p`
   color: #828282;
   font-weight: 500;
   font-size: 16px;
+  cursor: pointer;
 `;
 const User_delete = styled.p`
   color: #e21414;
   font-weight: 500;
   font-size: 16px;
+  cursor: pointer;
 `;
 const Guitar_box = styled.div`
   width: 342px;
@@ -365,10 +394,10 @@ const Character = styled.div`
 `;
 
 const Delete_modalback = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: -1100;
+  z-index: 1;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
@@ -434,6 +463,7 @@ const Delete_button = styled.button`
   font-size: 16px;
   font-weight: 600;
   padding: 5px 0;
+  cursor: pointer;
 `;
 const Cancel_button = styled.button`
   width: 100%;
@@ -446,13 +476,14 @@ const Cancel_button = styled.button`
   font-weight: 600;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 `;
 
 const Password_back = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: -1000;
+  z-index: 1;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
@@ -478,6 +509,7 @@ const Out_modal = styled.div`
   display: flex;
   left: 24px;
   top: 24px;
+  cursor: pointer;
 `;
 const Change_box = styled.div`
   display: flex ;
@@ -554,13 +586,14 @@ const Save_button = styled.div`
   background-color: #FCD671;
   color: #575141;
   border-radius: 12px;
+  cursor: pointer;
 `;
 
 const Profile_modalback = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  z-index: -1000;
+  z-index: 1;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.3);
@@ -682,6 +715,7 @@ const Save_btn = styled.button`
   font-weight: 600;
   font-size: 16px;
   border-radius: 12px;
+  cursor: pointer;
 `
 
 export default Mypage;
