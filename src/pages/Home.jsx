@@ -371,7 +371,7 @@ const StartText = styled.span`
   font-weight: 500;
 `;
 
-const ImgTotal = styled.span`
+const ImgTotal = styled.a`
   color: #828282;
   font-size: 12px;
   text-decoration: underline;
