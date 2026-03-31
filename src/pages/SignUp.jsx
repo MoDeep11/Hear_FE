@@ -65,7 +65,7 @@ const SignUp = () => {
       alert("비밀번호가 일치하지않아요!");
       return;
     } else {
-      alert("로그인 성공!");
+      alert("회원가입 성공!");
       navigate("/login");
     }
   };
