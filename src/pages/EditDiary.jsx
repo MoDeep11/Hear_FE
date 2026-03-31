@@ -34,11 +34,11 @@ const EditDiary = () => {
         <ContentBox>
           <ContentHeaderBox>
             <CategoryBox>
-              <CategoryImg src={NoAngry} alt="로고" />
-              <CategoryImg src={NoStar} alt="로고" />
-              <CategoryImg src={Happy} alt="로고" />
-              <CategoryImg src={NoSad} alt="로고" />
-              <CategoryImg src={NoAnxiety} alt="로고" />
+              <CategoryImg src={NoAngry} alt="화남" />
+              <CategoryImg src={NoStar} alt="보통" />
+              <CategoryImg src={Happy} alt="행복" />
+              <CategoryImg src={NoSad} alt="슬픔" />
+              <CategoryImg src={NoAnxiety} alt="불안" />
             </CategoryBox>
             <ButtonBox>
               <UpdateButton onClick={() => navigate("/diary")}>
@@ -70,18 +70,29 @@ const EditDiary = () => {
             <DiaryImg>
               <SlideContainer>
                 <SlideImage src={images[currentIndex]} alt="일기 이미지" />
-                <PrevButton onClick={goToPrevious}>
+                <PrevButton
+                  type="button"
+                  onClick={goToPrevious}
+                  aria-label="이전 이미지"
+                >
                   <Arrow>‹</Arrow>
                 </PrevButton>
-                <NextButton onClick={goToNext}>
+                <NextButton
+                  type="button"
+                  onClick={goToNext}
+                  aria-label="다음 이미지"
+                >
                   <Arrow>›</Arrow>
                 </NextButton>
                 <DotContainer>
                   {images.map((_, index) => (
                     <Dot
                       key={index}
+                      type="button"
                       isActive={index === currentIndex}
                       onClick={() => setCurrentIndex(index)}
+                      aria-label={`이미지 ${index + 1}`}
+                      aria-pressed={index === currentIndex}
                     />
                   ))}
                 </DotContainer>
