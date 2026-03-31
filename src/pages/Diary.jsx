@@ -5,8 +5,10 @@ import Happy from "../assets/Happy.svg";
 import ArrowRight from "../assets/ArrowRight.svg";
 import Test from "../assets/Test.svg";
 import Star from "../assets/Star.svg";
+import { useNavigate } from "react-router-dom";
 
 const Diary = () => {
+  const navigate = useNavigate();
   // 슬라이드 이미지 배열 (필요시 추가)
   const images = [Test, Test, Test]; // 같은 이미지 3개 (실제로는 다른 이미지 사용)
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -36,10 +38,12 @@ const Diary = () => {
               </CategoryTitle>
             </CategoryBox>
             <ButtonBox>
-              <UpdateButton>
+              <UpdateButton onClick={() => navigate("/editDiary")}>
                 수정하기 <img src={ArrowRight} alt="수정하기 이동" />
               </UpdateButton>
-              <DeleteButton>삭제</DeleteButton>
+              <DeleteButton onClick={() => navigate("/home")}>
+                삭제
+              </DeleteButton>
             </ButtonBox>
           </ContentHeaderBox>
           <DiaryBox>
