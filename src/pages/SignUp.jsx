@@ -5,11 +5,70 @@ import Header from "../components/Header.jsx";
 import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
-import Check_Password from "../assets/SeePass.svg";
+import CheckPassword from "../assets/SeePass.svg";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [checkpw, setCheckpw] = useState("");
+  const [authcode, setAuthcode] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [showCode, setShowCode] = useState(false);
+  const [timeleft, setTimeleft] = useState(180);
+
+  useEffect(() => {
+    let timer;
+    if (showCode && timeleft > 0) {
+      timer = setInterval(() => {
+        setTimeleft((prev) => prev - 1)
+      }, 1000)
+    } else if (timeleft === 0) {
+      alert("인증 시간이 만료되었습니다. 다시 시도해주세요.")
+      setShowCode(false)
+      setTimeleft(180)
+    }
+    return () => clearInterval(timer)
+  }, [showCode, timeleft])
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`
+  }
+
+  const handleSendCode = () => {
+    setTimeleft(180)
+    setShowCode(true) 
+  }
+
+  const request_body = {
+    email: email,
+    password: password,
+    confirmPassword: checkpw
+  }
+
+  const handleSubmit = async () => {
+    if (!password && !email) {
+      alert("이메일과 비밀번호를 입력해주세요");
+      return;
+    } else if (!password) {
+      alert("비밀번호를 입력해주세요");
+      return;
+    } else if (!email) {
+      alert("이메일을 입력해주세요");
+      return;
+    } else if (password != checkpw) {
+      alert("비밀번호가 일치하지않아요!");
+      return;
+    } else {
+      alert("회원가입 성공!");
+      navigate("/login");
+    }
+  };
 
   return (
     <Body>
@@ -19,46 +78,78 @@ const SignUp = () => {
           <img src={Left} alt="로그인 하세여~" />
           <Login_box>
             <Out_login>
-              <Arrow_btn onClick={() => navigate("/")} src={Arrow} alt="나가기"></Arrow_btn>
+              <Arrow_btn
+                onClick={() => navigate("/")}
+                src={Arrow}
+                alt="나가기"
+              ></Arrow_btn>
               <Login_main>
                 <Login_title>sign up</Login_title>
                 <Email_box>
                   <Email_title>이메일</Email_title>
                   <Email_input>
-                    <Email_text placeholder="이메일을 입력해주세요"></Email_text>
-                    <Email_check_btn>코드 발송</Email_check_btn>
+                    <Email_text
+                      placeholder="이메일을 입력해주세요"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    ></Email_text>
+                    <Email_check_btn onClick={handleSendCode}>코드 발송</Email_check_btn>
                   </Email_input>
-                  <Email_check_box>
-                    <Email_check_input placeholder="발송된 인증 코드를 입력해주세요"></Email_check_input>
-                    <Check_timer>3:00</Check_timer>
-                  </Email_check_box>
+                  {showCode && (
+                    <Email_check_box>
+                      <Email_check_input
+                        placeholder="발송된 인증 코드를 입력해주세요"
+                        value={authcode}
+                        onChange={(e) => setAuthcode(e.target.value)}
+                      ></Email_check_input>
+                      <Check_timer>{formatTime(timeleft)}</Check_timer>
+                    </Email_check_box>
+                  )}
                 </Email_box>
                 <Password_box>
                   <Password_title>비밀번호</Password_title>
                   <Password_input>
                     <Password_text
-                      type="password"
+                      type={showPw ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="비밀번호를 입력해주세요"
                     ></Password_text>
-                    <img src={Check_Password} alt="비밀번호 표시" />
+                    <img
+                      src={CheckPassword}
+                      onClick={() => {
+                        setShowPw(!showPw);
+                      }}
+                      alt="비밀번호 표시"
+                    />
                   </Password_input>
                 </Password_box>
                 <Password_box>
                   <Password_title>비밀번호 확인</Password_title>
                   <Password_input>
                     <Password_text
-                      type="password"
+                      type={showPw ? "text" : "password"}
+                      value={checkpw}
+                      onChange={(e) => setCheckpw(e.target.value)}
                       placeholder="비밀번호를 다시 입력해주세요"
                     ></Password_text>
-                    <img src={Check_Password} alt="비밀번호 표시" />
+                    <img
+                      src={CheckPassword}
+                      onClick={() => {
+                        setShowPw(!showPw);
+                      }}
+                      alt="비밀번호 표시"
+                    />
                   </Password_input>
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn onClick={() => navigate("/login")}>회원가입</Login_btn>
+                  <Login_btn onClick={handleSubmit}>회원가입</Login_btn>
                   <Check_in>
                     <Check_text>계정이 있으신가요?</Check_text>
-                    <Check_account onClick={() => navigate("/login")}>로그인</Check_account>
+                    <Check_account onClick={() => navigate("/login")}>
+                      로그인
+                    </Check_account>
                   </Check_in>
                 </Btn_box>
               </Login_main>

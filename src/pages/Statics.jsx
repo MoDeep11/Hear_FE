@@ -3,13 +3,12 @@ import Header from "../components/Header.jsx";
 import ReverseArrow from "../assets/Rev-Arrow.svg";
 import Arrow from "../assets/Arrow.svg";
 import Happy from "../assets/Star.svg";
-import Tail from "../assets/Tr.png";
 import { useState } from "react";
 
 const Statics = () => {
   const colors = ["#FEA2A9", "#FCD671", "#5DC19B", "#89D9FF", "#CBA3FF"];
 
-  const [dateNum, setDateNum] = useState(1);
+  const [dateNum, setDateNum] = useState(3);
   const [yearNum, setYearNum] = useState(2026);
 
   const date_minus = () => {
