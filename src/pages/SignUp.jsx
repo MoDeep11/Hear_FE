@@ -63,6 +63,7 @@ const SignUp = () => {
       return;
     } else if (password != checkpw) {
       alert("비밀번호가 일치하지않아요!");
+      return;
     } else {
       alert("로그인 성공!");
       navigate("/login");

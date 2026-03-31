@@ -3,7 +3,6 @@ import Header from "../components/Header.jsx";
 import ReverseArrow from "../assets/Rev-Arrow.svg";
 import Arrow from "../assets/Arrow.svg";
 import Happy from "../assets/Star.svg";
-import Tail from "../assets/Tr.png";
 import { useState } from "react";
 
 const Statics = () => {
