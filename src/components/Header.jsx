@@ -1,7 +1,6 @@
 import styled from "@emotion/styled";
 import Logo from "../assets/logo.svg";
 import Log from "../assets/Login.svg";
-import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Header = () => {
