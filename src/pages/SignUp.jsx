@@ -6,8 +6,7 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg";
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
   const navigate = useNavigate();

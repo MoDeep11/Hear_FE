@@ -4,12 +4,37 @@ import Header from "../components/Header.jsx";
 import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
-import Check_Password from "../assets/SeePass.svg"
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import Check_Password from "../assets/SeePass.svg";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+
+  const request_body = {
+    email: username,
+    password: "password_num",
+  };
+
+  const handleSubmit = async () => {
+    if (!password && !username) {
+      alert("아이디와 비밀번호를 입력해주세요");
+      return;
+    } else if (!password) {
+      alert("비밀번호를 입력해주세요");
+      return;
+    } else if (!username) {
+      alert("아이디를 입력해주세요");
+      return;
+    }
+    else {
+      navigate("/home");
+    }
+  };
 
   return (
     <Body>
@@ -19,27 +44,45 @@ const Login = () => {
           <img src={Left} alt="로그인 하세여~" />
           <Login_box>
             <Out_login>
-              <Arrow_btn src={Arrow} alt="나가기"></Arrow_btn>
+              <Arrow_btn src={Arrow} alt="나가기" onClick={()=>{navigate("/")}}></Arrow_btn>
               <Login_main>
                 <Login_title>Log in</Login_title>
                 <Email_box>
                   <Email_title>이메일</Email_title>
-                  <Email_text placeholder="이메일을 입력해주세요"></Email_text>
+                  <Email_text
+                    type="text"
+                    placeholder="이메일을 입력해주세요"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  ></Email_text>
                 </Email_box>
                 <Password_box>
                   <Password_title>비밀번호</Password_title>
                   <Password_input>
-                    <Password_text type="password" placeholder="비밀번호를 입력해주세요"></Password_text>
-                    <img src={Check_Password} alt="비밀번호 확인" />
+                    <Password_text
+                      type={showPw ? "text" : "password"}
+                      placeholder="비밀번호를 입력해주세요"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    ></Password_text>
+                    <img
+                      src={Check_Password}
+                      alt="비밀번호 확인"
+                      onClick={() => setShowPw((v) => !v)}
+                      title={showPw ? "숨기기" : "보기"}
+                    />
                   </Password_input>
-                  
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn onClick={() => navigate("/home")}>로그인</Login_btn>
+                  <Login_btn onClick={() => handleSubmit()}>
+                    로그인
+                  </Login_btn>
                   <Check_in>
                     <Check_text>계정이 없으신가요?</Check_text>
-                    <Check_account onClick={() => navigate("/signup")}>회원가입</Check_account>
+                    <Check_account onClick={() => navigate("/signup")}>
+                      회원가입
+                    </Check_account>
                   </Check_in>
                 </Btn_box>
               </Login_main>
@@ -119,108 +162,108 @@ const Login_title = styled.p`
 `;
 
 const Email_box = styled.div`
-width: 392px;
-height: auto;
-gap: 4px;
-display: flex;
-flex-direction: column;
-align-items: baseline;
-margin-bottom: 16px;
+  width: 392px;
+  height: auto;
+  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  margin-bottom: 16px;
 `;
 const Email_title = styled.p`
-color: #575141;
-font-size: 16px;
-font-weight: 500;
+  color: #575141;
+  font-size: 16px;
+  font-weight: 500;
 `;
 const Email_text = styled.input`
-width: 392px;
-height: 42px;
-border: 1px solid #BDBDBD;
-padding-left: 16px;
-font-size: 16px;
-font-weight: 500;
-border-radius: 12px;
-display: flex;
-align-items: center;
-::placeholder{
-  color: #BDBDBD;
-}
-:focus {
-  outline: none;
-}
+  width: 392px;
+  height: 42px;
+  border: 1px solid #bdbdbd;
+  padding-left: 16px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  &::placeholder {
+    color: #bdbdbd;
+  }
+  &:focus {
+    outline: none;
+  }
 `;
 const Password_box = styled.div`
-width: 392px;
-height: auto;
-gap: 4px;
-display: flex;
-flex-direction: column;
-align-items: baseline;
+  width: 392px;
+  height: auto;
+  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
 `;
 const Password_title = styled.p`
-color: #575141;
-font-size: 16px;
-font-weight: 500;
+  color: #575141;
+  font-size: 16px;
+  font-weight: 500;
 `;
 const Password_input = styled.div`
   width: 392px;
   height: 42px;
-  border: 1px solid #BDBDBD;
+  border: 1px solid #bdbdbd;
   display: flex;
   align-items: center;
   padding: 16px;
   border-radius: 12px;
-`
+`;
 const Password_text = styled.input`
-width: 392px;
-height: 38px;
-border: none;
-font-size: 16px;
-font-weight: 500;
-border-radius: 12px;
-display: flex;
-align-items: center;
-::placeholder{
-  color: #BDBDBD;
-}
-:focus {
-  outline: none;
-}
+  width: 392px;
+  height: 38px;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  ::placeholder {
+    color: #bdbdbd;
+  }
+  :focus {
+    outline: none;
+  }
 `;
 const Btn_box = styled.div`
-width: 392px;
-width: 66px;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: space-between;
-margin-top: 32px;
-gap: 6px;
+  width: 392px;
+  height: 66px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  gap: 6px;
 `;
 const Login_btn = styled.div`
-width: 392px;
-height: 42px;
-display: flex;
-justify-content: center;
-align-items: center;
-background-color: #FCD671;
-border-radius: 12px;
-color: #575141;
-font-size: 16px;
-font-weight: 600;
-transition: 0.1s ease-in;
-:hover{
-  color: white;
-  background-color: #DAA005;
-  cursor: pointer;
-}
+  width: 392px;
+  height: 42px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fcd671;
+  border-radius: 12px;
+  color: #575141;
+  font-size: 16px;
+  font-weight: 600;
+  transition: 0.1s ease-in;
+  &:hover {
+    color: white;
+    background-color: #daa005;
+    cursor: pointer;
+  }
 `;
 const Check_in = styled.div`
-display: flex;
-width: 392px;
-align-items: center;
-justify-content: center;
-gap: 2px;
+  display: flex;
+  width: 392px;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 `;
 const Check_text = styled.p`
   font-size: 14px;
@@ -228,15 +271,15 @@ const Check_text = styled.p`
   color: #828282;
 `;
 const Check_account = styled.p`
-font-size: 14px;
-font-weight: 600;
-color: #DAA005;
-text-decoration: underline;
-transition: 0.1s ease-in;
-:hover{
-  color: #FCD671;
-  cursor: pointer;
-}
+  font-size: 14px;
+  font-weight: 600;
+  color: #daa005;
+  text-decoration: underline;
+  transition: 0.1s ease-in;
+  :hover {
+    color: #fcd671;
+    cursor: pointer;
+  }
 `;
 
 export default Login;
