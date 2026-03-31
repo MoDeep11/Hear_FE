@@ -5,8 +5,8 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg";
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -185,10 +185,10 @@ const Email_text = styled.input`
   border-radius: 12px;
   display: flex;
   align-items: center;
-  ::placeholder {
+  &::placeholder {
     color: #bdbdbd;
   }
-  :focus {
+  &:focus {
     outline: none;
   }
 `;

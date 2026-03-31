@@ -6,7 +6,7 @@ import Test_img from "../assets/Test.svg";
 import Arrow from "../assets/Arrow.svg";
 import Reverse_Arrow from "../assets/Rev-Arrow.svg";
 import Search_tag from "../assets/search_tag.svg";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const Photo_Book = () => {
   const [dateNum, setDateNum] = useState(1);

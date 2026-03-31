@@ -4,7 +4,7 @@ import ReverseArrow from "../assets/Rev-Arrow.svg";
 import Arrow from "../assets/Arrow.svg";
 import Happy from "../assets/Star.svg";
 import Tail from "../assets/Tr.png";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const Statics = () => {
   const colors = ["#FEA2A9", "#FCD671", "#5DC19B", "#89D9FF", "#CBA3FF"];
