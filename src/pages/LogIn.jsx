@@ -232,7 +232,7 @@ const Password_text = styled.input`
 `;
 const Btn_box = styled.div`
   width: 392px;
-  width: 66px;
+  height: 66px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -252,7 +252,7 @@ const Login_btn = styled.div`
   font-size: 16px;
   font-weight: 600;
   transition: 0.1s ease-in;
-  :hover {
+  &:hover {
     color: white;
     background-color: #daa005;
     cursor: pointer;
