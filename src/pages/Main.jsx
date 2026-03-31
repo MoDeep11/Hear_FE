@@ -6,8 +6,7 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Logo from "../assets/logo.svg";
 import Arrow from "../assets/Rev-Arrow.svg";
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const Main = () => {
   const navigate = useNavigate()

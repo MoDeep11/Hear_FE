@@ -10,7 +10,7 @@ import Sad from "../assets/Sadness.svg";
 import Arrow from "../assets/Arrow.svg";
 import Random from "../assets/random.svg"
 import Upload_btnimg from "../assets/Upload_btn.svg"
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Mypage = () => {
