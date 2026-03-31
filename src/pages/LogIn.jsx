@@ -41,7 +41,7 @@ const Login = () => {
       <Header></Header>
       <Login_middle>
         <Login_first>
-          <img src={Left} alt="로그인 하세여~" />
+          <img src={Left} alt="왼쪽 캐릭터" />
           <Login_box>
             <Out_login>
               <Arrow_btn src={Arrow} alt="나가기" onClick={()=>{navigate("/")}}></Arrow_btn>
@@ -88,7 +88,7 @@ const Login = () => {
               </Login_main>
             </Out_login>
           </Login_box>
-          <img src={Right} alt="로그인..하세여.." />
+          <img src={Right} alt="오른쪽 캐릭터" />
         </Login_first>
       </Login_middle>
     </Body>
