@@ -53,13 +53,13 @@ const SignUp = () => {
 
   const handleSubmit = async () => {
     if (!password && !email) {
-      alert("아이디와 비밀번호를 입력해주세요");
+      alert("이메일과 비밀번호를 입력해주세요");
       return;
     } else if (!password) {
       alert("비밀번호를 입력해주세요");
       return;
     } else if (!email) {
-      alert("아이디를 입력해주세요");
+      alert("이메일을 입력해주세요");
       return;
     } else if (password != checkpw) {
       alert("비밀번호가 일치하지않아요!");
