@@ -7,34 +7,55 @@ import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { login } from "../apis/auth.js"
 
 const Login = () => {
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [message, setMessage] = useState("");
+  const [pwmessage, setPwmessage] = useState("");
 
-  const request_body = {
-    email: username,
-    password: "password_num",
-  };
+  const handleSubmit = async (e) => {
+    setMessage("");
+    setPwmessage("");
+    e.preventDefault();
 
-  const handleSubmit = async () => {
-    if (!password && !username) {
-      alert("이메일과 비밀번호를 입력해주세요");
+    try {
+      const data = await login(request_body);
+
+      const token = data.accessToken || data.data?.accessToken;
+
+      if (token) {
+        localStorage.setItem("accessToken", token);
+        alert("로그인 성공!");
+        navigate("/"); 
+      }
+    } catch (error) {
+      alert(
+        "로그인 실패: " +
+          (error.response?.data?.message || "정보를 확인해주세요."),
+      );
+    }
+    if (!password && !email) {
+      setMessage("이메일을 입력해주세요");
+      setPwmessage("비밀번호를 입력해주세요");
       return;
     } else if (!password) {
-      alert("비밀번호를 입력해주세요");
+      setPwmessage("비밀번호를 입력해주세요");
       return;
-    } else if (!username) {
-      alert("이메일을 입력해주세요");
+    } else if (!email) {
+      setMessage("이메일을 입력해주세요");
       return;
-    }
-    else {
-      navigate("/home");
     }
   };
+  const request_body = {
+    email: email,
+    password: password,
+  };
+
 
   return (
     <Body>
@@ -44,7 +65,13 @@ const Login = () => {
           <img src={Left} alt="왼쪽 캐릭터" />
           <Login_box>
             <Out_login>
-              <Arrow_btn src={Arrow} alt="나가기" onClick={()=>{navigate("/")}}></Arrow_btn>
+              <Arrow_btn
+                src={Arrow}
+                alt="나가기"
+                onClick={() => {
+                  navigate("/");
+                }}
+              ></Arrow_btn>
               <Login_main>
                 <Login_title>Log in</Login_title>
                 <Email_box>
@@ -52,10 +79,12 @@ const Login = () => {
                   <Email_text
                     type="text"
                     placeholder="이메일을 입력해주세요"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   ></Email_text>
+                  <Email_check_text>{message}</Email_check_text>
                 </Email_box>
+
                 <Password_box>
                   <Password_title>비밀번호</Password_title>
                   <Password_input>
@@ -72,12 +101,11 @@ const Login = () => {
                       title={showPw ? "숨기기" : "보기"}
                     />
                   </Password_input>
+                  <Email_check_text>{pwmessage}</Email_check_text>
                 </Password_box>
 
                 <Btn_box>
-                  <Login_btn onClick={() => handleSubmit()}>
-                    로그인
-                  </Login_btn>
+                  <Login_btn onClick={handleSubmit}>로그인</Login_btn>
                   <Check_in>
                     <Check_text>계정이 없으신가요?</Check_text>
                     <Check_account onClick={() => navigate("/signup")}>
@@ -192,6 +220,13 @@ const Email_text = styled.input`
     outline: none;
   }
 `;
+const Email_check_text = styled.p`
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 4px;
+  color: #e21414;
+`;
+
 const Password_box = styled.div`
   width: 392px;
   height: auto;
