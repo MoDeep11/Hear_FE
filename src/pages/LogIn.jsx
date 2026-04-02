@@ -15,10 +15,10 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
 
-  const request_body = {
-    email: username,
-    password: "password_num",
-  };
+  // const request_body = {
+  //   email: username,
+  //   password: "password_num",
+  // };
 
   const handleSubmit = async () => {
     if (!password && !username) {
