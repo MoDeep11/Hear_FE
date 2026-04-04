@@ -25,7 +25,7 @@ const handleSubmit = async (e) => {
     if (!email && !password) {
       setMessage("이메일을 입력해주세요");
       setPwmessage("비밀번호를 입력해주세요");
-      return; // 함수 종료 (API 호출 안 함)
+      return;
     } 
     
     if (!email) {
