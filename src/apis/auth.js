@@ -11,7 +11,6 @@ export const authCode = async (email, code, type) => {
 }
 
 export const signUp = async (userData) => {
-    console.log(userData)
     const response = await instance.post('/api/v1/auth/register', userData);
     return response.data;
 }
@@ -19,4 +18,13 @@ export const signUp = async (userData) => {
 export const login = async (userData) => {
   const response = await instance.post('/api/v1/auth/login', userData);
   return response.data; 
+};
+
+// apis/auth.js
+
+export const logout = async (refreshToken) => {
+  const response = await instance.post('/api/v1/auth/logout', {
+    refreshToken: refreshToken
+  });
+  return response.data;
 };

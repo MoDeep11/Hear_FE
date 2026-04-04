@@ -18,18 +18,43 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const [pwmessage, setPwmessage] = useState("");
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
     setMessage("");
     setPwmessage("");
-    e.preventDefault();
+    if (!email && !password) {
+      setMessage("이메일을 입력해주세요");
+      setPwmessage("비밀번호를 입력해주세요");
+      return; // 함수 종료 (API 호출 안 함)
+    } 
+    
+    if (!email) {
+      setMessage("이메일을 입력해주세요");
+      return;
+    } 
+    
+    if (!password) {
+      setPwmessage("비밀번호를 입력해주세요");
+      return;
+    }
+
+    const request_body = {
+      email: email,
+      password: password,
+    };
 
     try {
       const data = await login(request_body);
 
-      const token = data.accessToken || data.data?.accessToken;
+      const accessToken = data.accessToken || data.data?.accessToken;
+      const refreshToken = data.refreshToken || data.data?.refreshToken;
 
-      if (token) {
-        localStorage.setItem("accessToken", token);
+      if (accessToken) {
+        localStorage.setItem("accessToken", accessToken);
+        if (refreshToken) {
+          localStorage.setItem("refreshToken", refreshToken);
+        }
+        
         alert("로그인 성공!");
         navigate("/"); 
       }
@@ -39,21 +64,6 @@ const Login = () => {
           (error.response?.data?.message || "정보를 확인해주세요."),
       );
     }
-    if (!password && !email) {
-      setMessage("이메일을 입력해주세요");
-      setPwmessage("비밀번호를 입력해주세요");
-      return;
-    } else if (!password) {
-      setPwmessage("비밀번호를 입력해주세요");
-      return;
-    } else if (!email) {
-      setMessage("이메일을 입력해주세요");
-      return;
-    }
-  };
-  const request_body = {
-    email: email,
-    password: password,
   };
 
 

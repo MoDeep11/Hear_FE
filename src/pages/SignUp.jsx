@@ -65,7 +65,7 @@ const SignUp = () => {
     const type = "REGISTER";
     try {
       const response = await authCode(email, authcode, type);
-      setVerifyToken(response.data);
+      setVerifyToken(response.data.ticket);
       setCheckMessage("인증에 성공했습니다!");
       setShowCode(false);
     } catch (error) {
@@ -84,7 +84,7 @@ const SignUp = () => {
       email: email,
       password: password,
       confirmPassword: checkpw,
-      ticket: verifyToken,
+      ticket: verifyToken
     };
     if (!password && !email) {
       setMessage("이메일을 입력해주세요");

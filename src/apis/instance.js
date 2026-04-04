@@ -3,10 +3,22 @@ import axios from 'axios';
 const instance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 instance.interceptors.request.use(
   (config) => {
@@ -20,40 +32,50 @@ instance.interceptors.request.use(
 );
 
 instance.interceptors.response.use(
-  (response) => response, // 성공 시 그대로 반환
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // 401 에러(만료)가 발생했고, 재시도한 적이 없을 때
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return instance(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
       originalRequest._retry = true;
-      
+      isRefreshing = true;
+
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         
-        // 서버의 재발급 엔드포인트 호출 (보통 /auth/refresh)
-        // 주의: 재발급 요청은 무한 루프 방지를 위해 instance 대신 axios 생짜로 쓰거나 별도 설정 필요
         const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/refresh`, {
           refreshToken: refreshToken
         });
 
         if (res.status === 200) {
-          const newAccessToken = res.data.accessToken;
-          const newRefreshToken = res.data.refreshToken;
+          const { accessToken, refreshToken: newRefreshToken } = res.data;
 
-          // 새로운 토큰들 저장
-          localStorage.setItem('accessToken', newAccessToken);
+          localStorage.setItem('accessToken', accessToken);
           localStorage.setItem('refreshToken', newRefreshToken);
 
-          // 실패했던 원래 요청의 헤더를 새 토큰으로 교체 후 재요청
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          
+          processQueue(null, accessToken);
+          
           return instance(originalRequest);
         }
       } catch (refreshError) {
-        // 리프레시 토큰도 만료되었다면 로그아웃 처리
+        processQueue(refreshError, null);
         localStorage.clear();
         window.location.href = '/login';
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
     return Promise.reject(error);
