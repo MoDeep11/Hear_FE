@@ -54,3 +54,13 @@ export const deleteDiaries = async (diary_id) => {
   }
 };
 
+// 일기 추천 조회
+export const getDiariesRecommendation = async () => {
+  try {
+    const res = await instance.get(`/api/v1/diaries/recommendation`);
+    return res.data;
+  } catch (error) {
+    console.error("일기 추천 조회 실패:", error);
+    throw error;
+  }
+};
