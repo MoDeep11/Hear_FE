@@ -284,7 +284,7 @@ const Btn_box = styled.div`
   margin-top: 32px;
   gap: 6px;
 `;
-const Login_btn = styled.div`
+const Login_btn = styled.button`
   width: 392px;
   height: 42px;
   display: flex;
@@ -293,6 +293,7 @@ const Login_btn = styled.div`
   background-color: #fcd671;
   border-radius: 12px;
   color: #575141;
+  border: none;
   font-size: 16px;
   font-weight: 600;
   transition: 0.1s ease-in;
