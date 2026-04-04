@@ -20,16 +20,6 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-instance.interceptors.request.use(
-  (config) => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
 
 instance.interceptors.response.use(
   (response) => response,
@@ -47,6 +37,7 @@ instance.interceptors.response.use(
           })
           .catch((err) => Promise.reject(err));
       }
+
       originalRequest._retry = true;
       isRefreshing = true;
 
@@ -55,34 +46,33 @@ instance.interceptors.response.use(
 
         const res = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/auth/refresh`,
-          {
-            refreshToken: refreshToken,
-          },
+          { refreshToken: refreshToken }
         );
 
         if (res.status === 200) {
           const { accessToken, refreshToken: newRefreshToken } = res.data;
-
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("refreshToken", newRefreshToken);
-
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-
           processQueue(null, accessToken);
-
           return instance(originalRequest);
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
-        localStorage.clear();
-        window.location.href = "/login";
+        const status = refreshError.response?.status;
+        if (status === 401 || status === 403) {
+          console.warn("리프레시 토큰 만료 또는 권한 없음. 로그아웃 처리합니다.");
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export default instance;
