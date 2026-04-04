@@ -68,6 +68,10 @@ instance.interceptors.response.use(
           processQueue(null, accessToken);
           
           return instance(originalRequest);
+        } else {
+          const failError = new Error("토큰 리프레시가 실패했어요");
+          processQueue(failError, null);
+          return Promise.reject(failError);
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
