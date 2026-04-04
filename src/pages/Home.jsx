@@ -92,7 +92,7 @@ const Body = styled.section``;
 
 const Container = styled.section`
   display: flex;
-  margin: 45px 60px; // 상하좌우 여백 축소
+  margin: 45px 60px;
   gap: 30px;
 `;
 
@@ -189,7 +189,7 @@ const StyledCalendar = styled(Calendar)`
   }
 
   .react-calendar__tile {
-    height: 75px; // 90px -> 80px
+    height: 76px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -330,7 +330,7 @@ const Anxiety = styled.li`
 const ImgContainer = styled.div`
   display: flex;
   flex-direction: column;
-  height: 210px; // 250px -> 210px 축소
+  height: 230px; // 250px -> 210px 축소
   background-color: #f3f3f3;
   border-radius: 12px;
   padding: 14px;
