@@ -1,9 +1,9 @@
-import axios from 'axios';
+import axios from "axios";
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 5000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
 let isRefreshing = false;
@@ -22,13 +22,13 @@ const processQueue = (error, token = null) => {
 
 instance.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = localStorage.getItem("accessToken");
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 instance.interceptors.response.use(
@@ -51,35 +51,38 @@ instance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        
-        const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/refresh`, {
-          refreshToken: refreshToken
-        });
+        const refreshToken = localStorage.getItem("refreshToken");
+
+        const res = await axios.post(
+          `${import.meta.env.VITE_BASE_URL}/auth/refresh`,
+          {
+            refreshToken: refreshToken,
+          },
+        );
 
         if (res.status === 200) {
           const { accessToken, refreshToken: newRefreshToken } = res.data;
 
-          localStorage.setItem('accessToken', accessToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", newRefreshToken);
 
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          
+
           processQueue(null, accessToken);
-          
+
           return instance(originalRequest);
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
         localStorage.clear();
-        window.location.href = '/login';
+        window.location.href = "/login";
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default instance;

@@ -7,7 +7,7 @@ import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login } from "../apis/auth.js"
+import { login } from "../apis/auth.js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const [pwmessage, setPwmessage] = useState("");
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setMessage("");
     setPwmessage("");
@@ -26,13 +26,13 @@ const handleSubmit = async (e) => {
       setMessage("이메일을 입력해주세요");
       setPwmessage("비밀번호를 입력해주세요");
       return;
-    } 
-    
+    }
+
     if (!email) {
       setMessage("이메일을 입력해주세요");
       return;
-    } 
-    
+    }
+
     if (!password) {
       setPwmessage("비밀번호를 입력해주세요");
       return;
@@ -54,9 +54,9 @@ const handleSubmit = async (e) => {
         if (refreshToken) {
           localStorage.setItem("refreshToken", refreshToken);
         }
-        
+
         alert("로그인 성공!");
-        navigate("/"); 
+        navigate("/");
       }
     } catch (error) {
       alert(
@@ -65,7 +65,6 @@ const handleSubmit = async (e) => {
       );
     }
   };
-
 
   return (
     <Body>
