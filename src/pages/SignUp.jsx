@@ -40,6 +40,14 @@ const SignUp = () => {
     return () => clearInterval(timer);
   }, [showCode, timeleft]);
 
+useEffect(() => {
+  setVerifyToken("");
+  setCheckMessage("");
+  setAuthcode("");
+  setShowCode(false);
+  setTimeleft(180);
+}, [email]); 
+
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -47,13 +55,17 @@ const SignUp = () => {
   };
 
   const handleSendCode = async () => {
-    setTimeleft(180);
-    setShowCode(true);
+    if(!email.trim()) {
+      setMessage("이메일을 입력해주세요")
+      return;
+    }
     setCheckMessage("");
+
     const type = "REGISTER";
     try {
       await sendAuthcode(email, type);
-
+      setTimeleft(180);
+      setShowCode(true);
       setCheckMessage("인증 코드가 발송되었습니다!");
     } catch (error) {
       alert("발송 실패: " + error.response?.data?.message);
@@ -79,7 +91,6 @@ const SignUp = () => {
     setPwMessage("");
     setCheckMessage("");
     setCheckPwMessage("");
-    console.log(verifyToken);
     const request_body = {
       email: email,
       password: password,
@@ -456,13 +467,14 @@ const Btn_box = styled.div`
   margin-top: 16px;
   gap: 6px;
 `;
-const Login_btn = styled.div`
+const Login_btn = styled.button`
   width: 392px;
   height: 42px;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #fcd671;
+  border: none;
   border-radius: 12px;
   color: #575141;
   font-size: 16px;
