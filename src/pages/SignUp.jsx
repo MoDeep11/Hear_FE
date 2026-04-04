@@ -84,7 +84,7 @@ const SignUp = () => {
       email: email,
       password: password,
       confirmPassword: checkpw,
-      ticket: verifyToken
+      ticket: verifyToken,
     };
     if (!password && !email) {
       setMessage("이메일을 입력해주세요");
