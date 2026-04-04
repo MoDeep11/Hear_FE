@@ -147,9 +147,9 @@ useEffect(() => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     ></Email_text>
-                    <Email_check_btn onClick={handleSendCode}>
+                    <Email_send_btn onClick={handleSendCode}>
                       코드 발송
-                    </Email_check_btn>
+                    </Email_send_btn>
                   </Email_input>
                   <Email_check_text>{message}</Email_check_text>
                   {showCode && (
@@ -162,9 +162,9 @@ useEffect(() => {
                         ></Email_check_input>
                         <Check_timer>{formatTime(timeleft)}</Check_timer>
                       </Email_check_con>
-                      <Email_check_btn2 onClick={check_Code}>
+                      <Email_check_btn onClick={check_Code}>
                         확인
-                      </Email_check_btn2>
+                      </Email_check_btn>
                     </Email_check_box>
                   )}
                   <Email_check_text>{checkMessage}</Email_check_text>
@@ -339,7 +339,7 @@ const Email_check_text = styled.p`
   padding: 2px 4px;
   color: #e21414;
 `;
-const Email_check_btn = styled.button`
+const Email_send_btn = styled.button`
   width: 100px;
   height: 40px;
   border: none;
@@ -403,7 +403,7 @@ const Check_timer = styled.p`
   margin-bottom: 2px;
   color: #daa005;
 `;
-const Email_check_btn2 = styled.button`
+const Email_check_btn = styled.button`
   width: 64px;
   height: 40px;
   border: none;
