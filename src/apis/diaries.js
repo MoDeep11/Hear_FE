@@ -22,6 +22,17 @@ export const getDiaries = async (id) => {
   }
 };
 
+// 일기 목록 조회
+export const getDiariesList = async (params) => {
+  try {
+    const res = await instance.get(`/api/v1/diaries`, { params });
+    return res.data;
+  } catch (error) {
+    console.error("일기 목록 조회 실패:", error);
+    throw error;
+  }
+};
+
 // 일기 내용 수정
 export const updateDiaries = async (id, updateData) => {
   try {
