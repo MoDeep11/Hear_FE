@@ -40,14 +40,6 @@ const SignUp = () => {
     return () => clearInterval(timer);
   }, [showCode, timeleft]);
 
-useEffect(() => {
-  setVerifyToken("");
-  setCheckMessage("");
-  setAuthcode("");
-  setShowCode(false);
-  setTimeleft(180);
-}, [email]); 
-
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -55,8 +47,8 @@ useEffect(() => {
   };
 
   const handleSendCode = async () => {
-    if(!email.trim()) {
-      setMessage("이메일을 입력해주세요")
+    if (!email.trim()) {
+      setMessage("이메일을 입력해주세요");
       return;
     }
     setCheckMessage("");
@@ -145,7 +137,14 @@ useEffect(() => {
                     <Email_text
                       placeholder="이메일을 입력해주세요"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setVerifyToken("");
+                        setCheckMessage("");
+                        setAuthcode("");
+                        setShowCode(false);
+                        setTimeleft(180);
+                      }}
                     ></Email_text>
                     <Email_send_btn onClick={handleSendCode}>
                       코드 발송
