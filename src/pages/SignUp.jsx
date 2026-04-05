@@ -6,6 +6,7 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import CheckPassword from "../assets/SeePass.svg";
+import ClosePw from "../assets/openPw.svg"
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendAuthcode, authCode, signUp } from "../apis/auth.js";
@@ -19,6 +20,7 @@ const SignUp = () => {
   const [authcode, setAuthcode] = useState("");
   const [verifyToken, setVerifyToken] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [showCheckPw, setShowCheckPw] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [timeleft, setTimeleft] = useState(180);
   const [message, setMessage] = useState("");
@@ -195,7 +197,7 @@ const SignUp = () => {
                       placeholder="비밀번호를 입력해주세요"
                     ></Password_text>
                     <img
-                      src={CheckPassword}
+                      src={!showPw ? CheckPassword : ClosePw}
                       onClick={() => {
                         setShowPw(!showPw);
                       }}
@@ -208,15 +210,15 @@ const SignUp = () => {
                   <Password_title>비밀번호 확인</Password_title>
                   <Password_input>
                     <Password_text
-                      type={showPw ? "text" : "password"}
+                      type={showCheckPw ? "text" : "password"}
                       value={checkpw}
                       onChange={(e) => setCheckpw(e.target.value)}
                       placeholder="비밀번호를 다시 입력해주세요"
                     ></Password_text>
                     <img
-                      src={CheckPassword}
+                      src={!showCheckPw ? CheckPassword : ClosePw}
                       onClick={() => {
-                        setShowPw(!showPw);
+                        setShowCheckPw(!showCheckPw);
                       }}
                       alt="비밀번호 표시"
                     />
