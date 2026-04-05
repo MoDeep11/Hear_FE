@@ -6,6 +6,7 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import CheckPassword from "../assets/SeePass.svg";
+import ClosePw from "../assets/openPw.svg"
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendAuthcode, authCode, signUp } from "../apis/auth.js";
@@ -19,6 +20,7 @@ const SignUp = () => {
   const [authcode, setAuthcode] = useState("");
   const [verifyToken, setVerifyToken] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [showCheckPw, setShowCheckPw] = useState(false);
   const [showCode, setShowCode] = useState(false);
   const [timeleft, setTimeleft] = useState(180);
   const [message, setMessage] = useState("");
@@ -47,11 +49,13 @@ const SignUp = () => {
   };
 
   const handleSendCode = async () => {
+    setCheckMessage("");
+    setMessage("");
     if (!email.trim()) {
       setMessage("이메일을 입력해주세요");
       return;
     }
-    setCheckMessage("");
+
 
     const type = "REGISTER";
     try {
@@ -134,6 +138,7 @@ const SignUp = () => {
                 <Email_box>
                   <Email_title>이메일</Email_title>
                   <Email_input>
+                    {!verifyToken?(
                     <Email_text
                       placeholder="이메일을 입력해주세요"
                       value={email}
@@ -145,10 +150,25 @@ const SignUp = () => {
                         setShowCode(false);
                         setTimeleft(180);
                       }}
+                    ></Email_text>):(
+                      <Email_text
+                      placeholder="이메일을 입력해주세요"
+                      value={email}
+                      disabled
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                      }}
                     ></Email_text>
-                    <Email_send_btn onClick={handleSendCode}>
-                      코드 발송
-                    </Email_send_btn>
+                    )}
+                    {!verifyToken ? (
+            <Email_send_btn type="button" onClick={handleSendCode}>
+              코드 발송
+            </Email_send_btn>
+          ) : (
+            <Email_send_btn type="button" disabled style={{ backgroundColor: "#ccc" }}>
+              인증 완료
+            </Email_send_btn>
+          )}
                   </Email_input>
                   <Email_check_text>{message}</Email_check_text>
                   {showCode && (
@@ -178,7 +198,7 @@ const SignUp = () => {
                       placeholder="비밀번호를 입력해주세요"
                     ></Password_text>
                     <img
-                      src={CheckPassword}
+                      src={!showPw ? CheckPassword : ClosePw}
                       onClick={() => {
                         setShowPw(!showPw);
                       }}
@@ -191,15 +211,15 @@ const SignUp = () => {
                   <Password_title>비밀번호 확인</Password_title>
                   <Password_input>
                     <Password_text
-                      type={showPw ? "text" : "password"}
+                      type={showCheckPw ? "text" : "password"}
                       value={checkpw}
                       onChange={(e) => setCheckpw(e.target.value)}
                       placeholder="비밀번호를 다시 입력해주세요"
                     ></Password_text>
                     <img
-                      src={CheckPassword}
+                      src={!showCheckPw ? CheckPassword : ClosePw}
                       onClick={() => {
-                        setShowPw(!showPw);
+                        setShowCheckPw(!showCheckPw);
                       }}
                       alt="비밀번호 표시"
                     />
