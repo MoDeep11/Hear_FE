@@ -49,12 +49,13 @@ const SignUp = () => {
   };
 
   const handleSendCode = async () => {
+    setCheckMessage("");
     setMessage("");
     if (!email.trim()) {
       setMessage("이메일을 입력해주세요");
       return;
     }
-    setCheckMessage("");
+
 
     const type = "REGISTER";
     try {
