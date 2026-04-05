@@ -1,11 +1,21 @@
 import styled from "@emotion/styled";
 import Logo from "../assets/logo.svg";
 import Log from "../assets/Login.svg";
+import User from "../assets/User.svg";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 const Header = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const location = useLocation();
+  const [isLogin, setIsLogin] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    setIsLogin(!!token); 
+  }, [location.pathname]); 
+
+
 
   return (
     <HeaderBody>
@@ -21,10 +31,20 @@ const Header = () => {
       </HeaderMiddle>
       
       <HeaderRight>
-        <LoginImgBox>
-          <img src={Log} alt="Login" />
-        </LoginImgBox>
-        <LoginText onClick={() => navigate("/login")}>로그인</LoginText>
+        {isLogin ? (
+          <Login_complete onClick={() => navigate("/mypage")}>
+            <User_page>
+              <img src={User} alt="마이페이지" />
+            </User_page>
+          </Login_complete>
+        ) : (
+          <LoggedOutWrapper onClick={() => navigate("/login")}>
+            <LoginImgBox>
+              <img src={Log} alt="Login" />
+            </LoginImgBox>
+            <LoginText>로그인</LoginText>
+          </LoggedOutWrapper>
+        )}
       </HeaderRight>
     </HeaderBody>
   );
@@ -83,17 +103,42 @@ const MenuText = styled.p`
 `;
 
 const HeaderRight = styled.div`
-  width: 81px;
+  /* 고정 너비보다는 내부 콘텐츠에 맞게 늘어나도록 처리하는 게 깔끔합니다 */
+  min-width: 81px;
   height: 35px;
   background-color: #ffe39a;
   border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 8px 5px;
+  padding: 8px 12px;
   flex-shrink: 0;
   cursor: pointer;
+`;
+const Login_complete = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+const User_page = styled.div`
+  width: 24px; /* 아이콘 크기 적절히 조절 */
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+`;
+
+const LoggedOutWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 5px;
 `;
 
 const LoginImgBox = styled.div`
