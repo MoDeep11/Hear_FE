@@ -56,7 +56,7 @@ const Login = () => {
         }
 
         alert("로그인 성공!");
-        navigate("/");
+        navigate("/home");
       }
     } catch (error) {
       alert(

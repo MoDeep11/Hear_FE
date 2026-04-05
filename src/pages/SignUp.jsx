@@ -47,6 +47,7 @@ const SignUp = () => {
   };
 
   const handleSendCode = async () => {
+    setMessage("");
     if (!email.trim()) {
       setMessage("이메일을 입력해주세요");
       return;
@@ -134,6 +135,7 @@ const SignUp = () => {
                 <Email_box>
                   <Email_title>이메일</Email_title>
                   <Email_input>
+                    {!verifyToken?(
                     <Email_text
                       placeholder="이메일을 입력해주세요"
                       value={email}
@@ -145,10 +147,25 @@ const SignUp = () => {
                         setShowCode(false);
                         setTimeleft(180);
                       }}
+                    ></Email_text>):(
+                      <Email_text
+                      placeholder="이메일을 입력해주세요"
+                      value={email}
+                      disabled
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                      }}
                     ></Email_text>
-                    <Email_send_btn onClick={handleSendCode}>
-                      코드 발송
-                    </Email_send_btn>
+                    )}
+                    {!verifyToken ? (
+            <Email_send_btn type="button" onClick={handleSendCode}>
+              코드 발송
+            </Email_send_btn>
+          ) : (
+            <Email_send_btn type="button" disabled style={{ backgroundColor: "#ccc" }}>
+              인증 완료
+            </Email_send_btn>
+          )}
                   </Email_input>
                   <Email_check_text>{message}</Email_check_text>
                   {showCode && (
