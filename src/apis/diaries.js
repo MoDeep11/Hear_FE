@@ -60,3 +60,39 @@ export const deleteDiaries = async (diaryId) => {
     throw error;
   }
 };
+
+// 다이어리 추천 조회
+export const getDiaryRecommendation = async () => {
+  try {
+    const res = await instance.get(`/api/v1/diaries/recommendation`);
+    return res.data;
+  } catch (error) {
+    console.error("상태 코드:", error.response?.status);
+    console.error("에러 메시지:", error.response?.data);
+    console.error("요청 헤더:", error.config?.headers);
+    throw error;
+  }
+};
+
+// 다이어리 목록 조회
+export const getDiariesList = async (requestParams) => {
+  try {
+    const res = await instance.get(`/api/v1/diaries`, {
+      params: {
+        imageType: requestParams?.imageType,
+        hasPhoto: requestParams?.hasPhoto,
+        yearMonth: requestParams?.yearMonth,
+        limit: requestParams?.limit,
+        sort: requestParams?.sort,
+        tag: requestParams?.tag,
+        resolvedYearMonth: requestParams?.resolvedYearMonth,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("상태 코드:", error.response?.status);
+    console.error("에러 메시지:", error.response?.data);
+    console.error("요청 헤더:", error.config?.headers);
+    throw error;
+  }
+};
