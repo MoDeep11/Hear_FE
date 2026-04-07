@@ -1,6 +1,17 @@
-import instance from "./axios";
+import instance from "./instance";
 
-// 일기 조회
+// 일기 목록 조회
+export const getDiariesList = async (params) => {
+  try {
+    const res = await instance.get(`/api/v1/diaries`, { params });
+    return res.data;
+  } catch (error) {
+    console.error("일기 목록 조회 실패:", error);
+    throw error;
+  }
+};
+
+// 일기 단건 조회
 export const getDiaries = async (id) => {
   try {
     const res = await instance.get(`/api/v1/diaries/${id}`);
@@ -26,15 +37,11 @@ export const updateDiaries = async (id, updateData) => {
 };
 
 // 일기 이미지 수정
-export const updateDiariesImg = async (diary_id, imageFile) => {
+export const updateDiariesImg = async (diaryId, imageList) => {
   try {
-    const formData = new FormData();
-    formData.append("file", imageFile);
-
     const res = await instance.patch(
-      `/api/v1/diaries/${diary_id}/images`,
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } },
+      `/api/v1/diaries/${diaryId}/images`,
+      imageList,
     );
     return res.data;
   } catch (error) {
@@ -44,9 +51,9 @@ export const updateDiariesImg = async (diary_id, imageFile) => {
 };
 
 // 일기 삭제
-export const deleteDiaries = async (diary_id) => {
+export const deleteDiaries = async (diaryId) => {
   try {
-    const res = await instance.delete(`/api/v1/diaries/${diary_id}`);
+    const res = await instance.delete(`/api/v1/diaries/${diaryId}`);
     return res.data;
   } catch (error) {
     console.error("일기 삭제 실패:", error);
@@ -54,3 +61,14 @@ export const deleteDiaries = async (diary_id) => {
   }
 };
 
+// 다이어리 추천 조회
+export const getDiaryRecommendation = async () => {
+  try {
+    const res = await instance.get(`/api/v1/diaries/recommendation`);
+    return res.data;
+  } catch (error) {
+    console.error("상태 코드:", error.response?.status);
+    console.error("에러 메시지:", error.response?.data);
+    throw error;
+  }
+};
