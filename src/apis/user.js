@@ -6,7 +6,9 @@ export const getUserSummary = async () => {
     const res = await instance.get(`/api/v1/users/me/summary`);
     return res.data;
   } catch (error) {
-    console.error("사용자 요약 조회 실패:", error);
+    const status = error.response?.status;
+    const message = error.response?.data?.message ?? error.message;
+    console.error("사용자 요약 조회 실패", { status, message });
     throw error;
   }
 };
