@@ -20,7 +20,6 @@ export const login = async (userData) => {
   return response.data; 
 };
 
-// apis/auth.js
 
 export const logout = async (refreshToken) => {
   const response = await instance.post('/api/v1/auth/logout', {
