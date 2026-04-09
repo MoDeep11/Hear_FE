@@ -28,25 +28,19 @@ const SignUp = () => {
   const [pwMessage, setPwMessage] = useState("");
   const [checkPwMessage, setCheckPwMessage] = useState("");
 
-useEffect(() => {
-  let timer;
-
-  if (showCode && timeleft > 0) {
-    timer = setInterval(() => {
-      setTimeleft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
-          setShowCode(false);
-          return 180; 
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  }
-
-  return () => clearInterval(timer);
-}, [showCode]); 
+  useEffect(() => {
+    let timer;
+    if (showCode && timeleft > 0) {
+      timer = setInterval(() => {
+        setTimeleft((prev) => prev - 1);
+      }, 1000);
+    } else if (timeleft === 0) {
+      alert("인증 시간이 만료되었습니다. 다시 시도해주세요.");
+      setShowCode(false);
+      setTimeleft(180);
+    }
+    return () => clearInterval(timer);
+  }, [showCode, timeleft]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
