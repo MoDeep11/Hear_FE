@@ -111,7 +111,7 @@ const handleSaveProfile = async () => {
 };
 
   const handleChangePassword = async () => {
-    if (!newPassword || newPassword !== confirmPassword) {
+    if (!newPassword || newPassword !== confirmPassword || !password) {
       return alert("비밀번호가 일치하지 않거나 입력되지 않았습니다.");
     }
 
