@@ -16,17 +16,19 @@ function App() {
 
   const navigate = useNavigate();
   useEffect(() => {
-  const interval = setInterval(() => {
-    const expiry = localStorage.getItem("tokenExpiry");
-    if (expiry && Date.now() > expiry) {
-      alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-      localStorage.clear();
-      navigate("/login");
-    }
-  }, 60000); 
-
-  return () => clearInterval(interval);
-}, []);
+    const checkTokenExpiry = () => {
+      const expiry = localStorage.getItem("tokenExpiry");
+      const expiryMs = Number(expiry);
+      if (Number.isFinite(expiryMs) && Date.now() > expiryMs) {
+        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+        localStorage.clear();
+        navigate("/login");
+      }
+    };
+    checkTokenExpiry();
+    const interval = setInterval(checkTokenExpiry, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Routes>
