@@ -9,8 +9,27 @@ import Mypage from "./pages/MyPage.jsx";
 import Statics from "./pages/Statics.jsx";
 import Home from "./pages/Home.jsx";
 import EditDiary from "./pages/EditDiary.jsx";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function App() {
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    const checkTokenExpiry = () => {
+      const expiry = localStorage.getItem("tokenExpiry");
+      const expiryMs = Number(expiry);
+      if (Number.isFinite(expiryMs) && Date.now() > expiryMs) {
+        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+        localStorage.clear();
+        navigate("/login");
+      }
+    };
+    checkTokenExpiry();
+    const interval = setInterval(checkTokenExpiry, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <Routes>
       <Route path="/" element={<Main />} />
