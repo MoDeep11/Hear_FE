@@ -22,16 +22,13 @@ const processQueue = (error, token = null) => {
 
 instance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("accessToken");
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 instance.interceptors.response.use(
