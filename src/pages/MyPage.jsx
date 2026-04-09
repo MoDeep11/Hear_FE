@@ -10,7 +10,7 @@ import Random from "../assets/random.svg";
 import Upload_btnimg from "../assets/Upload_btn.svg";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyInfo, updateProfile, changePassword, deleteUser } from "../apis/mypages.api.js";
+import { getMyInfo, updateProfile, changePassword, deleteUser, logout } from "../apis/mypages.api.js";
 
 const Mypage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -43,7 +43,6 @@ const Mypage = () => {
     };
     fetchUserData();
   }, []);
-  console.log(userInfo)
 
   const [password, setPassword] = useState("");
 
@@ -80,36 +79,36 @@ const Mypage = () => {
     }
   };
 
-  const handleSaveProfile = async () => {
-    if (!newNickname.trim()) return alert("닉네임을 입력해주세요.");
+const handleSaveProfile = async () => {
+  if (!newNickname.trim()) return alert("닉네임을 입력해주세요.");
 
-    try {
-      const formData = new FormData();
+  try {
+    const formData = new FormData();
 
-      formData.append("nickname", newNickname);
+    const jsonBlob = new Blob(
+        [JSON.stringify({ nickname: newNickname })], 
+        { type: "application/json" }
+    );
+    
+    formData.append("data", jsonBlob);
+    formData.append("image", selectedFile ? selectedFile : null);
 
-      if (selectedFile) {
-        formData.append("profileImage", selectedFile);
-      }
+    const res = await updateProfile(formData);
 
-      const res = await updateProfile(formData);
-
-      if (res.status === "success") {
-        alert("프로필이 성공적으로 변경되었습니다.");
-
-        setUserInfo((prev) => ({
-          ...prev,
-          nickname: newNickname,
-          profileImageUrl: previewImage,
-        }));
-
-        setIsChangeModal(false);
-      }
-    } catch (error) {
-      console.error("수정 실패:", error);
-      alert("수정 중 오류가 발생했습니다. 서버 설정을 확인해주세요.");
+    if (res.status === 200) {
+      alert("프로필이 성공적으로 변경되었습니다.");
+      setUserInfo((prev) => ({
+        ...prev,
+        nickname: newNickname,
+        profileImageUrl: previewImage,
+      }));
+      setIsChangeModal(false);
     }
-  };
+  } catch (error) {
+    console.error("수정 실패:", error);
+    alert("수정 중 오류가 발생했습니다.");
+  }
+};
 
   const handleChangePassword = async () => {
     if (!newPassword || newPassword !== confirmPassword) {
@@ -123,9 +122,9 @@ const Mypage = () => {
          confirmPassword: confirmPassword
         
         });
-      if (res.status === "success") {
+      if (res.status === 200) {
         alert("비밀번호가 변경되었습니다.");
-        isPwModal(false)
+        setIsPwModal(false);
       }
     } catch (error) {
       alert(
@@ -137,7 +136,7 @@ const Mypage = () => {
 const handleDeleteAccount = async () => {
   try {
     const res = await deleteUser(); 
-    if (res.status === "success" || res.code === 200) {
+    if (res.status === 200) {
       alert("탈퇴가 완료되었습니다.");
       localStorage.clear();
       navigate("/");
@@ -149,14 +148,21 @@ const handleDeleteAccount = async () => {
   }
 };
 
-  const handleLogout = () => {
-    if (window.confirm("로그아웃 하시겠습니까?")) {
+
+const handleLogout = async () => {
+  if (window.confirm("로그아웃 하시겠습니까?")) {
+    try {
+      await logout(); 
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       navigate("/");
       window.location.reload();
-    }
-  };
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃 실패")
+    } 
+  }
+};
 
   if (isLoading)
     return (
