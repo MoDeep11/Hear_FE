@@ -21,7 +21,6 @@ export const updateProfile = async (formData) => {
 
 export const changePassword = async (passwordData) => {
   const response = await instance.patch('/api/v1/users/me/password', passwordData);
-  console.log(passwordData)
   return response.data;
 };
 
