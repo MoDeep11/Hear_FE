@@ -17,7 +17,7 @@ const processQueue = (error, token = null) => {
       prom.resolve(token);
     }
   });
-  failedQueue = [];
+  failedQueue = []; 
 };
 
 instance.interceptors.request.use(

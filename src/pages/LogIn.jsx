@@ -53,6 +53,7 @@ const Login = () => {
         localStorage.setItem("accessToken", accessToken);
         if (refreshToken) {
           localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("tokenExpiry", Date.now() + 60 * 60 * 1000);
         }
 
         alert("로그인 성공!");
