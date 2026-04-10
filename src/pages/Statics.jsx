@@ -1,15 +1,53 @@
 import styled from "@emotion/styled";
+import { Global, css } from "@emotion/react";
 import Header from "../components/Header.jsx";
 import ReverseArrow from "../assets/Rev-Arrow.svg";
 import Arrow from "../assets/Arrow.svg";
 import Happy from "../assets/Star.svg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getStatistics } from "../apis/statics.js";
+
+const globalStyles = css`
+  @property --rate {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+  }
+`;
+
 
 const Statics = () => {
   const colors = ["#FEA2A9", "#FCD671", "#5DC19B", "#89D9FF", "#CBA3FF"];
+  const emotionLabels = ["화남", "슬픔", "행복", "불안", "평범"];
+  const emotionKeys = ["ANGRY", "SAD", "HAPPY", "ANXIETY", "NEUTRAL"];
 
   const [dateNum, setDateNum] = useState(3);
   const [yearNum, setYearNum] = useState(2026);
+  const [statistics, setStatistics] = useState(null);
+
+  
+
+
+  const maxEmotion = statistics
+    ? Math.max(
+        ...emotionKeys.map(
+          (key) => statistics.emotionDistribution.values[key] ?? 0,
+        ),
+      )
+    : 1;
+
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const res = await getStatistics(yearNum, dateNum);
+        console.log("통계 데이터:", res.data);
+        setStatistics(res.data);
+      } catch (error) {
+        console.error("통계 로드 실패:", error);
+      }
+    };
+    fetchStatistics();
+  }, [yearNum, dateNum]);
 
   const date_minus = () => {
     if (dateNum > 1) {
@@ -30,6 +68,7 @@ const Statics = () => {
 
   return (
     <Body>
+      <Global styles={globalStyles} />
       <Header />
       <Main_box>
         <Date_box>
@@ -46,10 +85,12 @@ const Statics = () => {
         <Static_Main>
           <Static_Graphbox>
             <Static_circlebox>
-              <Circle_graph>
+              <Circle_graph rate={statistics ? statistics.writingRate : 0}>
                 <Circle_status>
                   <Status_text>일기 작성률</Status_text>
-                  <Status_percent>60%</Status_percent>
+                  <Status_percent>
+                    {statistics ? `${statistics.writingRate}%` : "0%"}
+                  </Status_percent>
                 </Circle_status>
               </Circle_graph>
             </Static_circlebox>
@@ -57,39 +98,48 @@ const Statics = () => {
               <Stick_status>
                 <Left_status>
                   <Stick_date>
-                    총 <span> 19일</span>
+                    총{" "}
+                    <span>
+                      {statistics ? `${statistics.diaryCount}일` : "0일"}
+                    </span>
                   </Stick_date>
                   <Stick_b></Stick_b>
-                  <Photo_date>사진 8회</Photo_date>
+                  <Photo_date>
+                    사진 {statistics ? `${statistics.photoCount}회` : "0회"}
+                  </Photo_date>
                 </Left_status>
-
                 <Right_status>
                   <Emotion_ul>
-                    <Emotion_li>화남</Emotion_li>
-                    <Emotion_li>평범</Emotion_li>
-                    <Emotion_li>행복</Emotion_li>
-                    <Emotion_li>슬픔</Emotion_li>
-                    <Emotion_li>불안</Emotion_li>
+                    {emotionLabels.map((label, index) => (
+                      <Emotion_li key={index}>{label}</Emotion_li>
+                    ))}
                   </Emotion_ul>
                 </Right_status>
               </Stick_status>
               <Bar_graphbox>
-                {colors.map((color, index) => (
-                  <Bar_box key={index}>
-                    <Bar_date>12일</Bar_date>
-                    <Emotion_bar bgColor={color} />
-                  </Bar_box>
-                ))}
+                {emotionKeys.map((key, index) => {
+                  const value = statistics
+                    ? (statistics.emotionDistribution.values[key] ?? 0)
+                    : 0;
+                  const height =
+                    maxEmotion > 0 ? (value / maxEmotion) * 100 : 0;
+                  return (
+                    <Bar_box key={index}>
+                      <Bar_date>
+                        {statistics ? `${Math.round(value)}일` : "0일"}
+                      </Bar_date>
+                      <Emotion_bar bgColor={colors[index]} height={height} />
+                    </Bar_box>
+                  );
+                })}
               </Bar_graphbox>
             </Static_stickbox>
           </Static_Graphbox>
           <Static_Message>
             <Message>
-              최히원 님, 이번 달은 전반적으로 '행복'한 날이 많았네요! 특히
-              주말에 사진 기록이 활발했습니다. 승리 님, 이번 달은 전반적으로
-              '행복'한 날이 많았네요! 특히 주말에 사진 기록이 활발했습니다. 승리
-              님, 이번 달은 전반적으로 '행복'한 날이 많았네요! 특히 주말에 사진
-              기록이 활발했습니다.
+              {statistics
+                ? statistics.aiReportContent
+                : "데이터를 불러오는 중..."}
             </Message>
             <Message_tr></Message_tr>
             <Message_tr></Message_tr>
@@ -102,7 +152,6 @@ const Statics = () => {
     </Body>
   );
 };
-
 const Body = styled.div`
   width: 100%;
   height: 100%;
@@ -181,8 +230,13 @@ const Circle_graph = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: conic-gradient(#f3f3f3 0% 40%, #fcd671 40% 100%);
+  --rate: ${(props) => props.rate}%;
+  background: conic-gradient(
+    #fcd671 0% var(--rate),
+    #f3f3f3 var(--rate) 100%
+  );
   border: 2px solid #e0e0e0;
+  transition: --rate 0.8s ease;
 `;
 
 const Circle_status = styled.div`
@@ -310,13 +364,25 @@ const Bar_graphbox = styled.div`
   padding: 0 50px;
   display: flex;
   justify-content: space-around;
+  align-items: flex-end;
   overflow-y: hidden;
 `;
 
 const Bar_box = styled.div`
   width: 60px;
   height: 100%;
-  margin-top: 200px; // 기본값 235px
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+`;
+
+const Emotion_bar = styled.div`
+  width: 100%;
+  height: ${(props) => props.height}%;
+  border-radius: 12px 12px 0 0;
+  background-color: ${(props) => props.bgColor};
+  transition: height 0.8s ease;
 `;
 
 const Bar_date = styled.p`
@@ -326,13 +392,6 @@ const Bar_date = styled.p`
   display: flex;
   justify-content: center;
   margin-bottom: 6px;
-`;
-
-const Emotion_bar = styled.div`
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  background-color: ${(props) => props.bgColor};
 `;
 
 const Static_Message = styled.div`
