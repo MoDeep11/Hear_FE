@@ -119,7 +119,7 @@ const Statics = () => {
               <Bar_graphbox>
                 {emotionKeys.map((key, index) => {
                   const value = statistics
-                    ? (statistics.emotionDistribution.values[key] ?? 0)
+                    ? (statistics?.emotionDistribution.values[key] ?? 0)
                     : 0;
                   const height =
                     maxEmotion > 0 ? (value / maxEmotion) * 100 : 0;
