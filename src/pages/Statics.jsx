@@ -31,7 +31,7 @@ const Statics = () => {
   const maxEmotion = statistics
     ? Math.max(
         ...emotionKeys.map(
-          (key) => statistics.emotionDistribution.values[key] ?? 0,
+          (key) => statistics?.emotionDistribution.values[key] ?? 0,
         ),
       )
     : 1;
