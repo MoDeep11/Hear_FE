@@ -67,7 +67,10 @@ instance.interceptors.response.use(
         const res = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/v1/auth/reissue`,
           { refreshToken },
-          { headers: refreshHeaders },
+          {
+            headers: refreshHeaders,
+            timeout: instance.defaults.timeout,
+          },
         );
 
         if (res.data.status === "success") {
