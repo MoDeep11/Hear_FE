@@ -2,7 +2,7 @@ import axios from "axios";
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 5000,
+  timeout: 30000,
   headers: { "Content-Type": "application/json" },
 });
 
@@ -17,21 +17,18 @@ const processQueue = (error, token = null) => {
       prom.resolve(token);
     }
   });
-  failedQueue = []; 
+  failedQueue = [];
 };
 
 instance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
-    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error),
 );
 
 instance.interceptors.response.use(
@@ -56,43 +53,45 @@ instance.interceptors.response.use(
 
       try {
         const refreshToken = localStorage.getItem("refreshToken");
+        const accessToken = localStorage.getItem("accessToken");
+
         const res = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/v1/auth/reissue`,
-          { refreshToken: refreshToken }
+          { refreshToken },
+          { headers: { Authorization: `Bearer ${accessToken}` } },
         );
 
         if (res.data.status === "success") {
-          const { accessToken, refreshToken: newRefreshToken } = res.data.data;
+          const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+            res.data.data;
 
-          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("accessToken", newAccessToken);
           localStorage.setItem("refreshToken", newRefreshToken);
 
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-          processQueue(null, accessToken);
-          
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          processQueue(null, newAccessToken);
+
           return instance(originalRequest);
         } else {
-          const failError = new Error("토큰 리프레시가 실패했어요");
-          processQueue(failError, null);
-          return Promise.reject(failError);
+          throw new Error("Token refresh failed");
         }
       } catch (refreshError) {
         processQueue(refreshError, null);
-        
+
         const status = refreshError.response?.status;
         if (status === 401 || status === 403) {
-          console.warn("세션이 만료되었습니다. 다시 로그인해주세요.");
+          console.warn("세션이 만료되어 로그아웃됩니다.");
           localStorage.clear();
           window.location.href = "/login";
         }
-
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
-  }
+  },
 );
 
 export default instance;
