@@ -34,21 +34,20 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const diaryRes = await getDiariesList();
-        if (diaryRes && diaryRes.data) {
-          const diaryData = diaryRes.data;
-          setDiaries(diaryData);
-          setTotalDays(diaryData.length);
+        const diaryData = Array.isArray(diaryRes)
+          ? diaryRes
+          : (diaryRes?.data ?? []);
+        setDiaries(diaryData);
+        setTotalDays(diaryData.length);
 
-          const photos = diaryData
-            .filter((d) => d.thumbnailUrl && d.thumbnailUrl !== "string")
-            .map((d) => d.thumbnailUrl);
-          setRecentPhotos(photos);
-        }
+        const photos = diaryData
+          .filter((d) => d.thumbnailUrl && d.thumbnailUrl !== "string")
+          .map((d) => d.thumbnailUrl);
+        setRecentPhotos(photos);
 
         const recRes = await getDiaryRecommendation();
-        if (recRes && recRes.data) {
-          setRecommendation(recRes.data);
-        }
+        const recData = recRes?.data ?? recRes;
+        if (recData) setRecommendation(recData);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
       }
@@ -81,19 +80,28 @@ const Home = () => {
   };
 
   const getRecommendationDisplay = () => {
+    const defaultEmotion = emotionMap.NEUTRAL;
     if (!recommendation) {
       return {
         dateText: "",
         emotionText: "",
-        emotionColor: emotionMap.color,
-        icon: emotionMap.icon,
+        emotionColor: defaultEmotion.color,
+        icon: defaultEmotion.icon,
       };
     }
 
+    if (!recommendation.targetDate) {
+      return {
+        dateText: "",
+        emotionText: "",
+        emotionColor: defaultEmotion.color,
+        icon: defaultEmotion.icon,
+      };
+    }
     const dateParts = recommendation.targetDate.split("-");
     const formattedDate = `${dateParts[0]}년 ${parseInt(dateParts[1], 10)}월 ${parseInt(dateParts[2], 10)}일`;
 
-    const emotionInfo = emotionMap[recommendation.emotion] || emotionMap;
+    const emotionInfo = emotionMap[recommendation.emotion] ?? defaultEmotion;
 
     return {
       dateText: `${formattedDate},`,
@@ -126,9 +134,10 @@ const Home = () => {
             tileContent={tileContent}
             onClickDay={(value) => {
               const dateString = formatDate(value);
-              const selectedDiary = diaries.find(
-                (diary) => diary.createdAt === dateString,
-              );
+              const selectedDiary = diaries.find((diary) => {
+                const diaryDate = diary.date ?? diary.createdAt?.slice(0, 10);
+                return diaryDate === dateString;
+              });
 
               if (selectedDiary) {
                 navigate(`/diary/${selectedDiary.id}`);
@@ -190,7 +199,7 @@ const Home = () => {
             </ImgContainer>
 
             {recommendation && recommendation.diaryId ? (
-              <NoDiaryContainer onClick={handleRecommendationClick}>
+              <NoDiaryContainer $clickable onClick={handleRecommendationClick}>
                 <BubbleContainerWrapper>
                   <BubbleContainer>
                     <BubbleContent>
@@ -212,7 +221,7 @@ const Home = () => {
                 </DiaryContainer>
               </NoDiaryContainer>
             ) : (
-              <NoDiaryContainer>
+              <NoDiaryContainer $clickable={false}>
                 <BubbleContainerWrapper>
                   <BubbleContainer>
                     <BubbleContent>
@@ -551,11 +560,13 @@ const NoDiaryContainer = styled.div`
   width: 100%;
   gap: 15px;
   margin-top: 10px;
-  cursor: pointer;
-  transition: transform 0.2s ease;
+  cursor: ${({ $clickable }) => ($clickable ? "pointer" : "default")};
+  transition: ${({ $clickable }) =>
+    $clickable ? "transform 0.2s ease" : "none"};
 
   &:hover {
-    transform: translateY(-2px);
+    transform: ${({ $clickable }) =>
+      $clickable ? "translateY(-2px)" : "none"};
   }
 `;
 
