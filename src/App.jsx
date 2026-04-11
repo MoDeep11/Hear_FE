@@ -28,7 +28,7 @@ function App() {
     checkTokenExpiry();
     const interval = setInterval(checkTokenExpiry, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [navigate]);
 
   return (
     <Routes>
@@ -36,12 +36,12 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/ai/chats" element={<AiChat />} />
-      <Route path="/diary" element={<Diary />} />
+      <Route path="/diary/:id" element={<Diary />} />
       <Route path="/mypage" element={<Mypage />} />
       <Route path="/statics" element={<Statics />} />
       <Route path="/home" element={<Home />} />
       <Route path="/photobook" element={<Photo_book />} />
-      <Route path="/editDiary" element={<EditDiary />} />
+      <Route path="/editDiary/:id" element={<EditDiary />} />
     </Routes>
   );
 }
