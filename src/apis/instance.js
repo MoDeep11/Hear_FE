@@ -54,19 +54,35 @@ instance.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         const accessToken = localStorage.getItem("accessToken");
+        if (!refreshToken) {
+          throw Object.assign(new Error("Missing refresh token"), {
+            response: { status: 401 },
+          });
+        }
+
+        const refreshHeaders = accessToken
+          ? { Authorization: `Bearer ${accessToken}` }
+          : {};
 
         const res = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/v1/auth/reissue`,
           { refreshToken },
-          { headers: { Authorization: `Bearer ${accessToken}` } },
+          { headers: refreshHeaders },
         );
 
         if (res.data.status === "success") {
+          const tokenPayload = res.data.data ?? res.data;
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
-            res.data.data;
+            tokenPayload ?? {};
+          if (!newAccessToken) {
+            throw new Error("Token refresh response missing access token");
+          }
 
           localStorage.setItem("accessToken", newAccessToken);
-          localStorage.setItem("refreshToken", newRefreshToken);
+          if (newRefreshToken) {
+            localStorage.setItem("refreshToken", newRefreshToken);
+          }
+          localStorage.setItem("tokenExpiry", Date.now() + 60 * 60 * 1000);
 
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           processQueue(null, newAccessToken);
