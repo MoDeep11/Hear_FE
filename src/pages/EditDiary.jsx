@@ -19,7 +19,7 @@ const EditDiary = () => {
   const [content, setContent] = useState("");
   const [date, setDate] = useState("");
   const [hashTags, setHashTags] = useState([]);
-  const [images, setImages] = useState([Test]);
+  const [imageUrls, setImageUrls] = useState([Test]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,8 +34,8 @@ const EditDiary = () => {
         setContent(data.content || "");
         setHashTags(data.tags || []);
 
-        if (data.images && data.images.length > 0) {
-          setImages(data.images);
+        if (data.imageUrls && data.imageUrls.length > 0) {
+          setImageUrls(data.imageUrls);
         }
       } catch (error) {
         console.error("데이터를 불러오는데 실패했습니다.", error);
@@ -50,13 +50,13 @@ const EditDiary = () => {
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1,
+      prevIndex === 0 ? imageUrls.length - 1 : prevIndex - 1,
     );
   };
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1,
+      prevIndex === imageUrls.length - 1 ? 0 : prevIndex + 1,
     );
   };
 
@@ -117,8 +117,8 @@ const EditDiary = () => {
             </DiaryContent>
             <DiaryImg>
               <SlideContainer>
-                <SlideImage src={images[currentIndex]} alt="일기 이미지" />
-                {images.length > 1 && (
+                <SlideImage src={imageUrls[currentIndex]} alt="일기 이미지" />
+                {imageUrls.length > 1 && (
                   <>
                     <PrevButton
                       type="button"
@@ -137,7 +137,7 @@ const EditDiary = () => {
                   </>
                 )}
                 <DotContainer>
-                  {images.map((_, index) => (
+                  {imageUrls.map((_, index) => (
                     <Dot
                       key={index}
                       type="button"
