@@ -1,29 +1,91 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { getDiaries, deleteDiaries } from "../apis/diaries";
+
 import Header from "../components/Header";
+import Sadness from "../assets/Sadness.svg";
+import Special from "../assets/Special.svg";
 import Happy from "../assets/Happy.svg";
 import ArrowRight from "../assets/ArrowRight.svg";
-import Test from "../assets/Test.svg";
 import Star from "../assets/Star.svg";
-import { useNavigate } from "react-router-dom";
+
+const EMOTION_MAP = {
+  HAPPY: { text: "행복한", color: "#5dc19b", icon: Happy },
+  SAD: { text: "슬픈", color: "#89D9FF", icon: Sadness },
+  ANGRY: { text: "화나는", color: "#FEA2A9", icon: Special },
+  ANXIETY: { text: "불안한", color: "#CBA3FF", icon: Special },
+  NEUTRAL: { text: "평범한", color: "#FCD671", icon: Star },
+};
 
 const Diary = () => {
   const navigate = useNavigate();
-  // 슬라이드 이미지 배열 (필요시 추가)
-  const images = [Test, Test, Test]; // 같은 이미지 3개 (실제로는 다른 이미지 사용)
+  const { id } = useParams();
+
+  const [diary, setDiary] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchDiary = async () => {
+      try {
+        setIsLoading(true);
+        const data = await getDiaries(id);
+        setDiary(data);
+      } catch (error) {
+        console.error("일기를 불러오는 데 실패했습니다.", error);
+        alert("일기를 불러올 수 없습니다.");
+        navigate("/home");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchDiary();
+    }
+  }, [id, navigate]);
+
+  const currentEmotion = EMOTION_MAP[diary?.emotion] || EMOTION_MAP.HAPPY;
+
+  const handleDelete = async () => {
+    const isConfirm = window.confirm("정말 이 일기를 삭제하시겠습니까?");
+    if (!isConfirm) return;
+
+    try {
+      await deleteDiaries(id);
+      alert("삭제되었습니다.");
+      navigate("/home");
+    } catch (error) {
+      console.error("일기 삭제 실패:", error);
+      alert("일기 삭제에 실패했습니다.");
+    }
+  };
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1,
+      prevIndex === 0 ? diary?.imageUrls.length - 1 : prevIndex - 1,
     );
   };
 
   const goToNext = () => {
     setCurrentIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1,
+      prevIndex === diary?.imageUrls.length - 1 ? 0 : prevIndex + 1,
     );
   };
+
+  if (isLoading) {
+    return (
+      <Body>
+        <Header />
+        <LoadingText>로딩 중...</LoadingText>
+      </Body>
+    );
+  }
+
+  if (!diary) {
+    return null;
+  }
 
   return (
     <Body>
@@ -32,69 +94,79 @@ const Diary = () => {
         <ContentBox>
           <ContentHeaderBox>
             <CategoryBox>
-              <CategoryImg src={Happy} alt="로고" />
-              <CategoryTitle>
-                <span>행복한</span> 하루에요!
+              <CategoryImg
+                src={currentEmotion.icon}
+                alt={currentEmotion.text}
+              />
+              <CategoryTitle color={currentEmotion.color}>
+                <span>{currentEmotion.text}</span> 하루에요!
               </CategoryTitle>
             </CategoryBox>
             <ButtonBox>
-              <UpdateButton onClick={() => navigate("/editDiary")}>
+              <UpdateButton onClick={() => navigate(`/editDiary/${id}`)}>
                 수정하기 <img src={ArrowRight} alt="수정하기 이동" />
               </UpdateButton>
-              <DeleteButton onClick={() => navigate("/home")}>
-                삭제
-              </DeleteButton>
+              <DeleteButton onClick={handleDelete}>삭제</DeleteButton>
             </ButtonBox>
           </ContentHeaderBox>
+
           <DiaryBox>
             <DiaryContent>
-              <h2>2026년 7월 20일</h2>
-              <p>
-                오늘은 정말 행복한 하루였어요! 아침에 일어나서 햇살이 너무
-                좋아서 기분이 좋았어요. 친구들과 함께 공원에서 피크닉을 했는데,
-                맛있는 음식과 좋은 대화로 즐거운 시간을 보냈어요. 저녁에는
-                가족과 함께 맛있는 저녁을 먹으면서 웃음이 끊이지 않았어요. 오늘
-                하루가 너무 소중하고 행복했어요!
-              </p>
+              <h2>
+                {diary.createdAt
+                  ? `${diary.createdAt.split("-")[0]}년 ${parseInt(diary.createdAt.split("-")[1])}월 ${parseInt(diary.createdAt.split("-")[2])}일`
+                  : "날짜 정보 없음"}
+              </h2>
+              <p>{diary.content}</p>
+
               <HashTagBox>
-                <span>#행복</span>
-                <span>#행복</span>
-                <span>#행복</span>
-                <span>#행복</span>
-                <span>#행복</span>
+                {diary.tags?.map((tag, idx) => (
+                  <span key={idx}>#{tag}</span>
+                ))}
               </HashTagBox>
             </DiaryContent>
+
             <DiaryImg>
               <SlideContainer>
-                <SlideImage src={images[currentIndex]} alt="일기 이미지" />
-                <PrevButton onClick={goToPrevious}>
-                  <Arrow>‹</Arrow>
-                </PrevButton>
-                <NextButton onClick={goToNext}>
-                  <Arrow>›</Arrow>
-                </NextButton>
-                <DotContainer>
-                  {images.map((_, index) => (
-                    <Dot
-                      key={index}
-                      isActive={index === currentIndex}
-                      onClick={() => setCurrentIndex(index)}
+                {diary.imageUrls && diary.imageUrls.length > 0 ? (
+                  <>
+                    <SlideImage
+                      src={diary.imageUrls[currentIndex]}
+                      alt="일기 이미지"
                     />
-                  ))}
-                </DotContainer>
+                    {diary.imageUrls.length > 1 && (
+                      <>
+                        <PrevButton onClick={goToPrevious}>
+                          <Arrow>‹</Arrow>
+                        </PrevButton>
+                        <NextButton onClick={goToNext}>
+                          <Arrow>›</Arrow>
+                        </NextButton>
+                        <DotContainer>
+                          {diary.imageUrls.map((_, index) => (
+                            <Dot
+                              key={index}
+                              isActive={index === currentIndex}
+                              onClick={() => setCurrentIndex(index)}
+                            />
+                          ))}
+                        </DotContainer>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <NoImageText>이미지가 없습니다</NoImageText>
+                )}
               </SlideContainer>
             </DiaryImg>
           </DiaryBox>
-          <AiFeedbackBox>
-            <AiFeedback>
-              <span>2026년 7월</span>은 평범한 하루들이 이어지면서도, 한편으로는
-              불안한 마음이 종종 찾아왔던 달이었네요. 그래도 다음 달에는 조금 더
-              편안하고 행복한 순간들이 많이 찾아오길 바라요. 이번 달에는 총 19일
-              동안 꾸준히 일기를 남겨 주셨어요! 다음 달에는 달력이 더 다양한
-              감정들로 가득 채워지길 기대할게요 !
-            </AiFeedback>
-            <AiFeedbackIcon src={Star} alt="AI 피드백" />
-          </AiFeedbackBox>
+
+          {diary.aiFeedback && (
+            <AiFeedbackBox>
+              <AiFeedback>{diary.aiFeedback}</AiFeedback>
+              <AiFeedbackIcon src={Star} alt="AI 피드백" />
+            </AiFeedbackBox>
+          )}
         </ContentBox>
       </Container>
     </Body>
@@ -138,7 +210,7 @@ const CategoryTitle = styled.div`
   font-weight: bold;
 
   span {
-    color: #5dc19b;
+    color: ${(props) => props.color || "#5dc19b"};
   }
 `;
 
@@ -203,7 +275,8 @@ const DiaryImg = styled.div`
   position: relative;
 `;
 
-// 슬라이드 컨테이너
+const NoImageText = styled.span``;
+
 const SlideContainer = styled.div`
   position: relative;
   width: 300px;
@@ -215,7 +288,6 @@ const SlideContainer = styled.div`
   justify-content: center;
 `;
 
-// 슬라이드 이미지
 const SlideImage = styled.img`
   width: 100%;
   height: 100%;
@@ -223,7 +295,6 @@ const SlideImage = styled.img`
   transition: opacity 0.3s ease-in-out;
 `;
 
-// 이전 버튼
 const PrevButton = styled.button`
   position: absolute;
   left: 12px;
@@ -248,7 +319,6 @@ const PrevButton = styled.button`
   }
 `;
 
-// 다음 버튼
 const NextButton = styled.button`
   position: absolute;
   right: 12px;
@@ -273,12 +343,10 @@ const NextButton = styled.button`
   }
 `;
 
-// 화살표 아이콘
 const Arrow = styled.span`
   font-weight: bold;
 `;
 
-// 도트 컨테이너
 const DotContainer = styled.div`
   position: absolute;
   bottom: 12px;
@@ -289,7 +357,6 @@ const DotContainer = styled.div`
   z-index: 10;
 `;
 
-// 도트
 const Dot = styled.button`
   width: 8px;
   height: 8px;
@@ -323,7 +390,6 @@ const AiFeedback = styled.div`
   border: 2px solid #e5d7b2;
   background-color: #fff9eb;
 
-  /* 오른쪽 면에 삼각형 말풍선 추가 */
   &::after {
     content: "";
     position: absolute;
@@ -337,7 +403,6 @@ const AiFeedback = styled.div`
     border-left: 12px solid #fff9eb;
   }
 
-  /* 삼각형 테두리 (border 표현) */
   &::before {
     content: "";
     position: absolute;
@@ -356,6 +421,13 @@ const AiFeedback = styled.div`
 const AiFeedbackIcon = styled.img`
   width: 100px;
   height: 100px;
+`;
+
+const LoadingText = styled.div`
+  font-size: 18px;
+  color: #828282;
+  text-align: center;
+  margin-top: 50px;
 `;
 
 export default Diary;
