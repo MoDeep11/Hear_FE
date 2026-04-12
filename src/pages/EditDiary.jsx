@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Header from "../components/Header";
 import Happy from "../assets/Happy.svg";
 import ArrowRight from "../assets/ArrowRight.svg";
@@ -8,13 +9,44 @@ import NoAngry from "../assets/NoAngry.svg";
 import NoStar from "../assets/NoStar.svg";
 import NoSad from "../assets/NoSad.svg";
 import NoAnxiety from "../assets/NoAnxiety.svg";
-import { useNavigate } from "react-router-dom";
+
+import { getDiaries, updateDiaries } from "../apis/diaries";
 
 const EditDiary = () => {
   const navigate = useNavigate();
-  // 슬라이드 이미지 배열 (필요시 추가)
-  const images = [Test, Test, Test]; // 같은 이미지 3개 (실제로는 다른 이미지 사용)
+  const { id } = useParams();
+
+  const [content, setContent] = useState("");
+  const [date, setDate] = useState("");
+  const [hashTags, setHashTags] = useState([]);
+  const [images, setImages] = useState([Test]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDiaryData = async () => {
+      if (!id) return;
+      try {
+        setIsLoading(true);
+        const data = await getDiaries(id);
+
+        setDate(data.createdAt || "");
+        setContent(data.content || "");
+        setHashTags(data.tags || []);
+
+        if (data.images && data.images.length > 0) {
+          setImages(data.images);
+        }
+      } catch (error) {
+        console.error("데이터를 불러오는데 실패했습니다.", error);
+        alert("일기 데이터를 가져올 수 없습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDiaryData();
+  }, [id]);
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
@@ -27,6 +59,22 @@ const EditDiary = () => {
       prevIndex === images.length - 1 ? 0 : prevIndex + 1,
     );
   };
+
+  const handleUpdate = async () => {
+    try {
+      await updateDiaries(id, { content });
+      alert("일기가 성공적으로 수정되었습니다.");
+      navigate(`/diary/${id}`);
+    } catch (error) {
+      alert("일기 수정에 실패했습니다.", error);
+    }
+  };
+
+  if (isLoading)
+    return (
+      <Body style={{ textAlign: "center", marginTop: "50px" }}>로딩 중...</Body>
+    );
+
   return (
     <Body>
       <Header />
@@ -41,49 +89,53 @@ const EditDiary = () => {
               <CategoryImg src={NoAnxiety} alt="불안" />
             </CategoryBox>
             <ButtonBox>
-              <UpdateButton onClick={() => navigate("/diary")}>
+              <UpdateButton onClick={() => navigate(`/diary/${id}`)}>
                 취소
               </UpdateButton>
-              <FinishButton onClick={() => navigate("/diary")}>
-                완료
-              </FinishButton>
+              <FinishButton onClick={handleUpdate}>완료</FinishButton>
             </ButtonBox>
           </ContentHeaderBox>
           <DiaryBox>
             <DiaryContent>
-              <h2>2026년 7월 20일</h2>
-              <p>
-                오늘은 정말 행복한 하루였어요! 아침에 일어나서 햇살이 너무
-                좋아서 기분이 좋았어요. 친구들과 함께 공원에서 피크닉을 했는데,
-                맛있는 음식과 좋은 대화로 즐거운 시간을 보냈어요. 저녁에는
-                가족과 함께 맛있는 저녁을 먹으면서 웃음이 끊이지 않았어요. 오늘
-                하루가 너무 소중하고 행복했어요!
-              </p>
+              <h2>
+                {date.includes("-")
+                  ? `${date.split("-")[0]}년 ${parseInt(date.split("-")[1])}월 ${parseInt(date.split("-")[2])}일`
+                  : date}
+              </h2>
+              <TextArea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="일기 내용을 입력해주세요."
+              />
               <HashTagBox>
-                <span>#행복</span>
-                <span>#행복</span>
-                <span>#행복</span>
-                <span>#행복</span>
-                <span>#행복</span>
+                {hashTags.length > 0 ? (
+                  hashTags.map((tag, idx) => <span key={idx}>#{tag}</span>)
+                ) : (
+                  <span>태그가 없습니다.</span>
+                )}
               </HashTagBox>
             </DiaryContent>
             <DiaryImg>
               <SlideContainer>
                 <SlideImage src={images[currentIndex]} alt="일기 이미지" />
-                <PrevButton
-                  type="button"
-                  onClick={goToPrevious}
-                  aria-label="이전 이미지"
-                >
-                  <Arrow>‹</Arrow>
-                </PrevButton>
-                <NextButton
-                  type="button"
-                  onClick={goToNext}
-                  aria-label="다음 이미지"
-                >
-                  <Arrow>›</Arrow>
-                </NextButton>
+                {images.length > 1 && (
+                  <>
+                    <PrevButton
+                      type="button"
+                      onClick={goToPrevious}
+                      aria-label="이전 이미지"
+                    >
+                      <Arrow>‹</Arrow>
+                    </PrevButton>
+                    <NextButton
+                      type="button"
+                      onClick={goToNext}
+                      aria-label="다음 이미지"
+                    >
+                      <Arrow>›</Arrow>
+                    </NextButton>
+                  </>
+                )}
                 <DotContainer>
                   {images.map((_, index) => (
                     <Dot
@@ -91,8 +143,6 @@ const EditDiary = () => {
                       type="button"
                       isActive={index === currentIndex}
                       onClick={() => setCurrentIndex(index)}
-                      aria-label={`이미지 ${index + 1}`}
-                      aria-pressed={index === currentIndex}
                     />
                   ))}
                 </DotContainer>
@@ -135,15 +185,7 @@ const CategoryBox = styled.div`
 const CategoryImg = styled.img`
   width: 40px;
   height: 40px;
-`;
-
-const CategoryTitle = styled.div`
-  font-size: 24px;
-  font-weight: bold;
-
-  span {
-    color: #5dc19b;
-  }
+  cursor: pointer;
 `;
 
 const ButtonBox = styled.div`
@@ -192,9 +234,26 @@ const DiaryContent = styled.div`
 
   h2 {
     color: #daa005;
+    margin-bottom: 16px;
   }
 `;
-
+const TextArea = styled.textarea`
+  flex: 1;
+  width: 100%;
+  min-height: 200px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.5;
+  font-family: inherit;
+  margin-bottom: 16px;
+  &:focus {
+    outline: none;
+    border-color: #fcd671;
+  }
+`;
 const HashTagBox = styled.div`
   display: flex;
   align-items: end;
@@ -207,7 +266,6 @@ const DiaryImg = styled.div`
   position: relative;
 `;
 
-// 슬라이드 컨테이너
 const SlideContainer = styled.div`
   position: relative;
   width: 300px;
@@ -219,7 +277,6 @@ const SlideContainer = styled.div`
   justify-content: center;
 `;
 
-// 슬라이드 이미지
 const SlideImage = styled.img`
   width: 100%;
   height: 100%;
@@ -227,7 +284,6 @@ const SlideImage = styled.img`
   transition: opacity 0.3s ease-in-out;
 `;
 
-// 이전 버튼
 const PrevButton = styled.button`
   position: absolute;
   left: 12px;
@@ -252,7 +308,6 @@ const PrevButton = styled.button`
   }
 `;
 
-// 다음 버튼
 const NextButton = styled.button`
   position: absolute;
   right: 12px;
@@ -277,12 +332,10 @@ const NextButton = styled.button`
   }
 `;
 
-// 화살표 아이콘
 const Arrow = styled.span`
   font-weight: bold;
 `;
 
-// 도트 컨테이너
 const DotContainer = styled.div`
   position: absolute;
   bottom: 12px;
@@ -293,7 +346,6 @@ const DotContainer = styled.div`
   z-index: 10;
 `;
 
-// 도트
 const Dot = styled.button`
   width: 8px;
   height: 8px;
