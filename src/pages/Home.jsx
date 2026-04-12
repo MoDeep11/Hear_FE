@@ -30,6 +30,10 @@ const Home = () => {
   const [recentPhotos, setRecentPhotos] = useState([]);
   const [recommendation, setRecommendation] = useState(null);
 
+  const handlePhotoClick = (diaryId) => {
+    navigate(`/diary/${diaryId}`);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,7 +46,10 @@ const Home = () => {
 
         const photos = diaryData
           .filter((d) => d.thumbnailUrl && d.thumbnailUrl !== "string")
-          .map((d) => d.thumbnailUrl);
+          .map((d) => ({
+            url: d.thumbnailUrl,
+            diaryId: d.id,
+          }));
         setRecentPhotos(photos);
 
         const recRes = await getDiaryRecommendation();
@@ -183,9 +190,15 @@ const Home = () => {
               <ImgBox>
                 {recentPhotos.length > 0 ? (
                   <RecentPhotosList>
-                    {recentPhotos.slice(0, 3).map((url, index) => (
-                      <RecentImageWrapper key={index}>
-                        <RecentImage src={url} alt={`최근 사진 ${index + 1}`} />
+                    {recentPhotos.slice(0, 3).map((photo, index) => (
+                      <RecentImageWrapper
+                        key={index}
+                        onClick={() => handlePhotoClick(photo.diaryId)}
+                      >
+                        <RecentImage
+                          src={photo.url}
+                          alt={`최근 사진 ${index + 1}`}
+                        />
                       </RecentImageWrapper>
                     ))}
                   </RecentPhotosList>
@@ -524,6 +537,15 @@ const RecentImageWrapper = styled.div`
   background-color: #f9f9f9;
   border: 1px solid #eee;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const RecentImage = styled.img`
