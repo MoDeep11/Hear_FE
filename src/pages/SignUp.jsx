@@ -82,6 +82,7 @@ useEffect(() => {
       setVerifyToken(response.data.ticket);
       setCheckMessage("인증에 성공했습니다!");
       setShowCode(false);
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       setCheckMessage("번호를 확인해 주세요.");
     }
