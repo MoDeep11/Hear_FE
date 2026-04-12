@@ -20,14 +20,14 @@ useEffect(() => {
     const token = localStorage.getItem("accessToken"); 
     const expiry = localStorage.getItem("tokenExpiry");
 
-    if (!token || !expiry) {
+    if (!token) {
       return;
     }
 
     const expiryMs = Number(expiry);
     const now = Date.now();
-
-    if (Number.isFinite(expiryMs) && now > expiryMs) {
+    
+    if (!expiry || !Number.isFinite(expiryMs) || now > expiryMs) {
       alert("세션이 만료되었습니다. 다시 로그인해주세요.");
       localStorage.clear();
       navigate("/");
