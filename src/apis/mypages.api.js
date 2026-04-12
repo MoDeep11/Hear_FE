@@ -41,3 +41,8 @@ export const logout = async () => {
   });
   return response.data;
 };
+
+export const getRandomProfile = async () => {
+  const response = await instance.patch('/api/v1/users/me/profile-images/random');
+  return response.data;
+};

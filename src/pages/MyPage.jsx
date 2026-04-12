@@ -10,7 +10,7 @@ import Random from "../assets/random.svg";
 import Upload_btnimg from "../assets/Upload_btn.svg";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyInfo, updateProfile, changePassword, deleteUser, logout } from "../apis/mypages.api.js";
+import { getMyInfo, updateProfile, changePassword, deleteUser, logout, getRandomProfile } from "../apis/mypages.api.js";
 
 const Mypage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -79,17 +79,31 @@ const Mypage = () => {
     }
   };
 
+const handleRandomProfile = async () => {
+  try {
+    const res = await getRandomProfile();
+    if (res.data?.profileImageUrl) {
+      setPreviewImage(res.data.profileImageUrl);
+      setUserInfo((prev) => ({
+        ...prev,
+        profileImageUrl: res.data.profileImageUrl, 
+      }));
+      setSelectedFile(null);
+    }
+  } catch (error) {
+    console.error("랜덤 프로필 실패:", error);
+  }
+};
+
 const handleSaveProfile = async () => {
   if (!newNickname.trim()) return alert("닉네임을 입력해주세요.");
 
   try {
     const formData = new FormData();
-
     const jsonBlob = new Blob(
-        [JSON.stringify({ nickname: newNickname })], 
-        { type: "application/json" }
+      [JSON.stringify({ nickname: newNickname })],
+      { type: "application/json" }
     );
-    
     formData.append("data", jsonBlob);
     formData.append("image", selectedFile ? selectedFile : null);
 
@@ -97,11 +111,10 @@ const handleSaveProfile = async () => {
 
     if (res.status === 200) {
       alert("프로필이 성공적으로 변경되었습니다.");
-      setUserInfo((prev) => ({
-        ...prev,
-        nickname: newNickname,
-        profileImageUrl: previewImage,
-      }));
+    
+      const updatedUser = await getMyInfo();
+      setUserInfo(updatedUser.data);
+      
       setIsChangeModal(false);
     }
   } catch (error) {
@@ -334,7 +347,7 @@ const handleLogout = async () => {
                       objectFit: "cover",
                     }}
                   />
-                  <Profile_rand>
+                  <Profile_rand onClick={handleRandomProfile}>
                     <img src={Random} alt="Random" />
                   </Profile_rand>
                 </Change_imgbox>
@@ -824,7 +837,7 @@ const Change_imgbox = styled.div`
   overflow: hidden;
 `;
 
-const Profile_rand = styled.div`
+const Profile_rand = styled.button`
   position: absolute;
   right: 210px;
   top: 105px;
@@ -837,6 +850,7 @@ const Profile_rand = styled.div`
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 `;
 const Change_nickbox = styled.div`
   width: 100%;
