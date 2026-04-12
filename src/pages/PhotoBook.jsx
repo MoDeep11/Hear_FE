@@ -10,39 +10,53 @@ const Photo_Book = () => {
   const [dateNum, setDateNum] = useState(4); 
   const [yearNum, setYearNum] = useState(2026);
   const [galleryData, setGalleryData] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const [appliedSearch, setAppliedSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
+  
+  
 
   const formatYearMonth = (y, m) => {
     return `${y}-${String(m).padStart(2, "0")}`;
   };
 
-  const fetchGallery = async () => {
-    setLoading(true);
-    try {
-      const currentYM = formatYearMonth(yearNum, dateNum);
-      const res = await getMyGallery(currentYM, searchTerm);
-      
-      if (res.data && res.data.length > 0) {
-        setGalleryData(res.data[0].diaries);
-      } else {
-        setGalleryData([]);
-      }
-    } catch (error) {
-      console.error("갤러리 로드 실패:", error);
+const fetchGallery = async () => {
+  setLoading(true);
+  try {
+    const currentYM = formatYearMonth(yearNum, dateNum);
+    const res = await getMyGallery(currentYM, searchTerm);
+    
+    if (res.data && res.data.length > 0) {
+      setGalleryData(res.data); 
+    } else {
       setGalleryData([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error("갤러리 로드 실패:", error);
+    setGalleryData([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const filteredData = appliedSearch.trim()
+  ? galleryData.filter((item) =>
+      item.tags.some((tag) =>
+        tag.toLowerCase().includes(appliedSearch.toLowerCase())
+      )
+    )
+  : galleryData;
 
   useEffect(() => {
     fetchGallery();
-  }, [dateNum, yearNum]);
+  }, [dateNum, yearNum]); 
 
-  const handleSearch = (e) => {
-    if (e.key === "Enter") fetchGallery();
-  };
+const handleSearch = () => {
+  setAppliedSearch(searchTerm);
+};
+
+  
 
   const date_minus = () => {
     if (dateNum > 1) {
@@ -62,6 +76,8 @@ const Photo_Book = () => {
     }
   };
 
+
+
   return (
     <Body>
       <Header />
@@ -73,43 +89,34 @@ const Photo_Book = () => {
           </Time_line>
           <img src={Reverse_Arrow} alt="next" onClick={date_plus} style={{ cursor: 'pointer' }} />
         </Time_box>
-
         <Search_box>
-          <Search_bar 
-            placeholder="해시태그를 검색해주세요"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={handleSearch}
-          />
-          <img src={Search_tag} alt="search" onClick={fetchGallery} style={{ cursor: 'pointer' }} />
+        <Search_bar
+          placeholder="해시태그를 검색해주세요"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+        />
+        <img src={Search_tag} alt="search" onClick={handleSearch} style={{ cursor: 'pointer' }} />
         </Search_box>
 
         <Photo_box>
           {loading ? (
             <p>사진을 불러오는 중...</p>
-          ) : galleryData.length > 0 ? (
-            galleryData.map((item) => (
-              <Photo key={item.id} onClick={() => window.location.href=`/diary/${item.id}`}>
+          ) : filteredData.length > 0 ? (
+            filteredData.map((item) => (
+              <Photo key={item.id}>
                 <img src={item.thumbnailUrl} alt="diary" />
-                <Photo_date>{item.createdAt.split('-')[2]}일</Photo_date>
+                <Photo_date>{item.createdAt ? `${item.createdAt.split('-')[2]}일` : "날짜 없음"}</Photo_date>
                 <Photo_layer />
               </Photo>
             ))
           ) : (
             <NoData>
-              <Nophoto>
-                사진이 없어요...
-              </Nophoto>
-              <Letsgo>
-                일기에 추억을 남기러 갈까요?
-              </Letsgo>
+              <Nophoto>사진이 없어요...</Nophoto>
+              <Letsgo>일기에 추억을 남기러 갈까요?</Letsgo>
             </NoData>
           )}
         </Photo_box>
-        
-        {/* 페이징 처리: 명세서상 한 달 단위로 32개를 가져오므로, 
-            만약 32개가 꽉 찼다면 '더보기' 버튼을 만들거나 다음 페이지 API를 호출해야 합니다.
-            현재는 달력 이동 방식으로 충분히 커버 가능합니다. */}
       </Photo_Main>
     </Body>
   );
@@ -197,6 +204,7 @@ const Photo = styled.div`
   height: 200px;
   border-radius: 20px;
   overflow: hidden;
+  cursor: pointer;
 
   img {
     width: 100%;
