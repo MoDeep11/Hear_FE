@@ -1,7 +1,7 @@
 import instance from "./instance";
 
 export const getMyGallery = async (yearMonth, tag = "") => {
-  const response = await instance.get('/api/v1/diaries?imageType=MANUAL&hasPhoto=true', {
+  const response = await instance.get('/api/v1/diaries', {
     params: {
       imageType: 'MANUAL',
       hasPhoto: true,
