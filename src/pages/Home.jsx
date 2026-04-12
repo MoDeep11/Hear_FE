@@ -76,7 +76,7 @@ const Home = () => {
         if (recData) setRecommendation(recData);
 
         const summaryRes = await getUserSummary();
-        setSummary(summaryRes);
+        setSummary(summaryRes.data);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
       }
