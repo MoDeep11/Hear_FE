@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 import { getUserSummary } from "../apis/user";
 import { getDiariesList, getDiaryRecommendation } from "../apis/diaries";
+import { getCalendars } from "../apis/user";
 
 const emotionMap = {
   HAPPY: { text: "행복한", color: "#5dc19b", icon: Happy },
@@ -27,13 +28,29 @@ const Home = () => {
   const navigate = useNavigate();
 
   const [diaries, setDiaries] = useState([]);
+  const [calendarData, setCalendarData] = useState([]);
   const [totalDays, setTotalDays] = useState(0);
   const [recentPhotos, setRecentPhotos] = useState([]);
   const [recommendation, setRecommendation] = useState(null);
   const [summary, setSummary] = useState(null);
 
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
   const handlePhotoClick = (diaryId) => {
     navigate(`/diary/${diaryId}`);
+  };
+
+  const handleRecommendationClick = () => {
+    if (recommendation && recommendation.diaryId) {
+      navigate(`/diary/${recommendation.diaryId}`);
+    }
+  };
+
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
 
   useEffect(() => {
@@ -68,18 +85,28 @@ const Home = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const fetchCalendarData = async () => {
+      try {
+        const yearMonth = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
+        const res = await getCalendars(yearMonth);
+        setCalendarData(res.data || []);
+      } catch (error) {
+        console.error("캘린더 데이터 로딩 실패:", error);
+      }
+    };
+    fetchCalendarData();
+  }, [currentMonth]);
+
   const getGraphStyle = () => {
     if (!summary || !summary.emotionDistribution) return { background: "#eee" };
-
     const dist = summary.emotionDistribution;
     const values = dist.values || dist;
-
     const total = Object.values(values).reduce((a, b) => a + b, 0);
     if (total === 0) return { background: "#eee" };
 
     let currentPos = 0;
     const gradientParts = [];
-
     Object.keys(emotionMap).forEach((key) => {
       const count = values[key] || 0;
       if (count > 0) {
@@ -91,31 +118,25 @@ const Home = () => {
         currentPos += percentage;
       }
     });
-
     return {
       background: `linear-gradient(to right, ${gradientParts.join(", ")})`,
     };
   };
 
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  };
-
   const tileContent = ({ date, view }) => {
     if (view === "month") {
       const dateString = formatDate(date);
-      const hasDiary = diaries.find((diary) => {
-        const diaryDate = diary.date ?? diary.createdAt?.slice(0, 10);
-        return diaryDate === dateString;
-      });
+      const dayData = calendarData.find((item) => item.date === dateString);
 
-      if (hasDiary) {
+      if (dayData && dayData.hasDiary) {
+        const emotionIcon = emotionMap[dayData.emotion]?.icon;
         return (
           <DiaryMark>
-            <Dot color="#fcd671" />
+            {emotionIcon ? (
+              <EmotionIcon src={emotionIcon} alt={dayData.emotion} />
+            ) : (
+              <Dot color="#fcd671" />
+            )}
           </DiaryMark>
         );
       }
@@ -125,16 +146,7 @@ const Home = () => {
 
   const getRecommendationDisplay = () => {
     const defaultEmotion = emotionMap.NEUTRAL;
-    if (!recommendation) {
-      return {
-        dateText: "",
-        emotionText: "",
-        emotionColor: defaultEmotion.color,
-        icon: defaultEmotion.icon,
-      };
-    }
-
-    if (!recommendation.targetDate) {
+    if (!recommendation || !recommendation.targetDate) {
       return {
         dateText: "",
         emotionText: "",
@@ -144,9 +156,7 @@ const Home = () => {
     }
     const dateParts = recommendation.targetDate.split("-");
     const formattedDate = `${dateParts[0]}년 ${parseInt(dateParts[1], 10)}월 ${parseInt(dateParts[2], 10)}일`;
-
     const emotionInfo = emotionMap[recommendation.emotion] ?? defaultEmotion;
-
     return {
       dateText: `${formattedDate},`,
       emotionText: emotionInfo.text,
@@ -156,12 +166,6 @@ const Home = () => {
   };
 
   const recDisplay = getRecommendationDisplay();
-
-  const handleRecommendationClick = () => {
-    if (recommendation && recommendation.diaryId) {
-      navigate(`/diary/${recommendation.diaryId}`);
-    }
-  };
 
   return (
     <Body>
@@ -173,9 +177,20 @@ const Home = () => {
             calendarType="gregory"
             formatDay={(locale, date) => date.getDate()}
             formatShortWeekday={(locale, date) =>
-              ["일", "월", "화", "수", "목", "금", "토"][date.getDay()]
+              [
+                "일요일",
+                "월요일",
+                "화요일",
+                "수요일",
+                "목요일",
+                "금요일",
+                "토요일",
+              ][date.getDay()]
             }
             tileContent={tileContent}
+            onActiveStartDateChange={({ activeStartDate }) =>
+              setCurrentMonth(activeStartDate)
+            }
             onClickDay={(value) => {
               const dateString = formatDate(value);
               const selectedDiary = diaries.find((diary) => {
@@ -439,6 +454,40 @@ const StyledCalendar = styled(Calendar)`
       color: white;
     }
   }
+
+  .react-calendar__navigation__prev-button,
+  .react-calendar__navigation__next-button {
+    display: none;
+  }
+
+  .react-calendar__navigation__prev2-button,
+  .react-calendar__navigation__next2-button {
+    display: none;
+  }
+
+  .react-calendar__navigation__label {
+    pointer-events: none;
+  }
+`;
+
+const DiaryMark = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 4px;
+`;
+
+const EmotionIcon = styled.img`
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+`;
+
+const Dot = styled.div`
+  width: 8px;
+  height: 8px;
+  background-color: ${(props) => props.color || "#fcd671"};
+  border-radius: 50%;
 `;
 
 const StatSection = styled.div`
@@ -646,7 +695,7 @@ const BubbleContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* 텍스트 정렬 */
+  align-items: flex-start;
   width: 100%;
   background: white;
   border: 1.5px solid #d4d4d0;
@@ -662,7 +711,6 @@ const BubbleContent = styled.div`
   align-self: center;
   gap: 4px;
 `;
-
 const MessageText = styled.span`
   font-size: 13px;
   text-align: center;
@@ -675,7 +723,6 @@ const MessageText = styled.span`
     display: inline-block;
   }
 `;
-
 const EmotionText = styled.span`
   color: ${(props) => props.color || "inherit"};
   font-weight: bold;
@@ -735,19 +782,6 @@ const AiChatButton = styled.button`
     width: 12px;
     height: 12px;
   }
-`;
-
-const DiaryMark = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 4px;
-`;
-const Dot = styled.div`
-  width: 8px;
-  height: 8px;
-  background-color: ${(props) => props.color || "#fcd671"};
-  border-radius: 50%;
 `;
 
 export default Home;
