@@ -382,6 +382,11 @@ const StyledCalendar = styled(Calendar)`
       background: #fff9eb;
       border-radius: 12px;
     }
+
+    &.react-calendar__month-view__days__day--neighboringMonth {
+      opacity: 0.4;
+      color: #bbb !important;
+    }
   }
   .react-calendar__tile--now {
     background: none !important;
