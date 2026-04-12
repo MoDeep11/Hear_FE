@@ -73,7 +73,10 @@ const Home = () => {
   const tileContent = ({ date, view }) => {
     if (view === "month") {
       const dateString = formatDate(date);
-      const hasDiary = diaries.find((diary) => diary.date === dateString);
+      const hasDiary = diaries.find((diary) => {
+        const diaryDate = diary.date ?? diary.createdAt?.slice(0, 10);
+        return diaryDate === dateString;
+      });
 
       if (hasDiary) {
         return (
