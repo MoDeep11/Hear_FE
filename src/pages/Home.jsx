@@ -188,7 +188,17 @@ const Home = () => {
           <StyledCalendar
             locale="ko-KR"
             calendarType="gregory"
-            formatDay={(locale, date) => date.getDate()}
+            formatDay={(locale, date) => {
+              const dateString = formatDate(date);
+              const dayData = calendarData.find(
+                (item) => item.date === dateString,
+              );
+
+              if (dayData && dayData.hasDiary) {
+                return "";
+              }
+              return date.getDate();
+            }}
             formatShortWeekday={(locale, date) =>
               [
                 "일요일",
