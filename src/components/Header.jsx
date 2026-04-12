@@ -8,19 +8,12 @@ import { useState, useEffect } from "react";
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLogin, setIsLogin] = useState(false);
 
+  const isLogin = !!localStorage.getItem("accessToken");
+  
+  const [, forceUpdate] = useState(0);
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    setIsLogin(!!token);
-  }, [location.pathname]);
-
-  // 로그아웃 등 storage 변경 감지
-  useEffect(() => {
-    const handleStorage = () => {
-      const token = localStorage.getItem("accessToken");
-      setIsLogin(!!token);
-    };
+    const handleStorage = () => forceUpdate((n) => n + 1);
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
   }, []);

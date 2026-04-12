@@ -5,6 +5,7 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg";
+import Pweye from "../assets/openPw.svg"
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../apis/auth.js";
@@ -105,10 +106,12 @@ const Login = () => {
                       onChange={(e) => setPassword(e.target.value)}
                     ></Password_text>
                     <img
-                      src={Check_Password}
+                      src={showPw?Pweye:Check_Password}
                       alt="비밀번호 확인"
                       onClick={() => setShowPw((v) => !v)}
                       title={showPw ? "숨기기" : "보기"}
+                      width={16}
+                      height={16}
                     />
                   </Password_input>
                   <Email_check_text>{pwmessage}</Email_check_text>
