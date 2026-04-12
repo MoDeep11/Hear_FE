@@ -5,16 +5,18 @@ import Reverse_Arrow from "../assets/Rev-Arrow.svg";
 import Search_tag from "../assets/search_tag.svg";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getMyGallery } from "../apis/photo.api.js";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 const Photo_Book = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [dateNum, setDateNum] = useState(4);
   const [yearNum, setYearNum] = useState(2026);
   const [galleryData, setGalleryData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 16;
 
   const searchTermRef = useRef(searchTerm);
   useEffect(() => {
@@ -46,20 +48,28 @@ const Photo_Book = () => {
   const filteredData = appliedSearch.trim()
     ? galleryData.filter((item) =>
         (item.tags || []).some((tag) =>
-          tag.toLowerCase().includes(appliedSearch.toLowerCase())
-        )
+          tag.toLowerCase().includes(appliedSearch.toLowerCase()),
+        ),
       )
     : galleryData;
+
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
+  const paginatedData = filteredData.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
 
   useEffect(() => {
     fetchGallery();
   }, [fetchGallery]);
 
   const handleSearch = () => {
+    setCurrentPage(1);
     setAppliedSearch(searchTerm);
   };
 
   const date_minus = () => {
+    setCurrentPage(1);
     if (dateNum > 1) {
       setDateNum(dateNum - 1);
     } else {
@@ -69,6 +79,7 @@ const Photo_Book = () => {
   };
 
   const date_plus = () => {
+    setCurrentPage(1);
     if (dateNum < 12) {
       setDateNum(dateNum + 1);
     } else {
@@ -82,30 +93,52 @@ const Photo_Book = () => {
       <Header />
       <Photo_Main>
         <Time_box>
-          <img src={Arrow} alt="prev" onClick={date_minus} style={{ cursor: "pointer" }} />
+          <img
+            src={Arrow}
+            alt="prev"
+            onClick={date_minus}
+            style={{ cursor: "pointer" }}
+          />
           <Time_line>
             {yearNum}년 <span>{dateNum}</span>월
           </Time_line>
-          <img src={Reverse_Arrow} alt="next" onClick={date_plus} style={{ cursor: "pointer" }} />
+          <img
+            src={Reverse_Arrow}
+            alt="next"
+            onClick={date_plus}
+            style={{ cursor: "pointer" }}
+          />
         </Time_box>
         <Search_box>
           <Search_bar
             placeholder="해시태그를 검색해주세요"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
           />
-          <img src={Search_tag} alt="search" onClick={handleSearch} style={{ cursor: "pointer" }} />
+          <img
+            src={Search_tag}
+            alt="search"
+            onClick={handleSearch}
+            style={{ cursor: "pointer" }}
+          />
         </Search_box>
         <Photo_box>
           {loading ? (
             <p>사진을 불러오는 중...</p>
-          ) : filteredData.length > 0 ? (
-            filteredData.map((item) => (
-              <Photo key={item.id} onClick={() => navigate(`/diary/${item.id}`)}>
+          ) : paginatedData.length > 0 ? (
+            paginatedData.map((item) => (
+              <Photo
+                key={item.id}
+                onClick={() => navigate(`/diary/${item.id}`)}
+              >
                 <img src={item.thumbnailUrl} alt="diary" />
                 <Photo_date>
-                  {item.createdAt ? `${item.createdAt.split("-")[2]}일` : "날짜 없음"}
+                  {item.createdAt
+                    ? `${item.createdAt.split("-")[2]}일`
+                    : "날짜 없음"}
                 </Photo_date>
                 <Photo_layer />
               </Photo>
@@ -117,6 +150,25 @@ const Photo_Book = () => {
             </NoData>
           )}
         </Photo_box>
+        {totalPages > 1 && (
+          <Pagination>
+            <PageArrow
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <img src={Arrow} alt="prev" />
+            </PageArrow>
+            <PageNum>
+              {currentPage} / {totalPages}
+            </PageNum>
+            <PageArrow
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              <img src={Reverse_Arrow} alt="next" />
+            </PageArrow>
+          </Pagination>
+        )}
       </Photo_Main>
     </Body>
   );
@@ -210,7 +262,11 @@ const Photo_layer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.5) 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 60%,
+    rgba(0, 0, 0, 0.5) 100%
+  );
   pointer-events: none;
   z-index: 1;
 `;
@@ -239,6 +295,28 @@ const Nophoto = styled.p`
 const Letsgo = styled.p`
   font-weight: 600;
   font-size: 20px;
+  color: #4f4f4f;
+`;
+const Pagination = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 16px 0 40px;
+`;
+const PageArrow = styled.button`
+  background: none;
+  border: none;
+  cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
+  opacity: ${({ disabled }) => (disabled ? 0.3 : 1)};
+  padding: 0;
+  display: flex;
+  align-items: center;
+`;
+const PageNum = styled.p`
+  font-size: 18px;
+  font-weight: 600;
   color: #4f4f4f;
 `;
 
