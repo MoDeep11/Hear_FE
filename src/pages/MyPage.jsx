@@ -10,7 +10,14 @@ import Random from "../assets/random.svg";
 import Upload_btnimg from "../assets/Upload_btn.svg";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyInfo, updateProfile, changePassword, deleteUser, logout, getRandomProfile } from "../apis/mypages.api.js";
+import {
+  getMyInfo,
+  updateProfile,
+  changePassword,
+  deleteUser,
+  logout,
+  getRandomProfile,
+} from "../apis/mypages.api.js";
 
 const Mypage = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -19,6 +26,7 @@ const Mypage = () => {
   const [isChangeModal, setIsChangeModal] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isPwModal, setIsPwModal] = useState(false);
+  const [emailAlert, setEmailAlert] = useState(false);
 
   const [newNickname, setNewNickname] = useState("");
   const [previewImage, setPreviewImage] = useState(null);
@@ -54,16 +62,16 @@ const Mypage = () => {
     setIsChangeModal(true);
   };
 
-    const handleOpenDeleteModal = () => {
+  const handleOpenDeleteModal = () => {
     if (!userInfo) return;
     setIsDeleteModal(true);
   };
 
-      const handleOpenPwModal = () => {
+  const handleOpenPwModal = () => {
     if (!userInfo) return;
     setConfirmPassword("");
-    setPassword("")
-    setNewPassword("")
+    setPassword("");
+    setNewPassword("");
     setIsPwModal(true);
   };
 
@@ -79,49 +87,48 @@ const Mypage = () => {
     }
   };
 
-const handleRandomProfile = async () => {
-  try {
-    const res = await getRandomProfile();
-    if (res.data?.profileImageUrl) {
-      setPreviewImage(res.data.profileImageUrl);
-      setUserInfo((prev) => ({
-        ...prev,
-        profileImageUrl: res.data.profileImageUrl, 
-      }));
-      setSelectedFile(null);
+  const handleRandomProfile = async () => {
+    try {
+      const res = await getRandomProfile();
+      if (res.data?.profileImageUrl) {
+        setPreviewImage(res.data.profileImageUrl);
+        setUserInfo((prev) => ({
+          ...prev,
+          profileImageUrl: res.data.profileImageUrl,
+        }));
+        setSelectedFile(null);
+      }
+    } catch (error) {
+      console.error("랜덤 프로필 실패:", error);
     }
-  } catch (error) {
-    console.error("랜덤 프로필 실패:", error);
-  }
-};
+  };
 
-const handleSaveProfile = async () => {
-  if (!newNickname.trim()) return alert("닉네임을 입력해주세요.");
+  const handleSaveProfile = async () => {
+    if (!newNickname.trim()) return alert("닉네임을 입력해주세요.");
 
-  try {
-    const formData = new FormData();
-    const jsonBlob = new Blob(
-      [JSON.stringify({ nickname: newNickname })],
-      { type: "application/json" }
-    );
-    formData.append("data", jsonBlob);
-    formData.append("image", selectedFile ? selectedFile : null);
+    try {
+      const formData = new FormData();
+      const jsonBlob = new Blob([JSON.stringify({ nickname: newNickname })], {
+        type: "application/json",
+      });
+      formData.append("data", jsonBlob);
+      formData.append("image", selectedFile ? selectedFile : null);
 
-    const res = await updateProfile(formData);
+      const res = await updateProfile(formData);
 
-    if (res.status === 200) {
-      alert("프로필이 성공적으로 변경되었습니다.");
-    
-      const updatedUser = await getMyInfo();
-      setUserInfo(updatedUser.data);
-      
-      setIsChangeModal(false);
+      if (res.status === 200) {
+        alert("프로필이 성공적으로 변경되었습니다.");
+
+        const updatedUser = await getMyInfo();
+        setUserInfo(updatedUser.data);
+
+        setIsChangeModal(false);
+      }
+    } catch (error) {
+      console.error("수정 실패:", error);
+      alert("수정 중 오류가 발생했습니다.");
     }
-  } catch (error) {
-    console.error("수정 실패:", error);
-    alert("수정 중 오류가 발생했습니다.");
-  }
-};
+  };
 
   const handleChangePassword = async () => {
     if (!newPassword || newPassword !== confirmPassword || !password) {
@@ -130,11 +137,10 @@ const handleSaveProfile = async () => {
 
     try {
       const res = await changePassword({
-         oldPassword: password,
-         newPassword: newPassword,
-         confirmPassword: confirmPassword
-        
-        });
+        oldPassword: password,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      });
       if (res.status === 200) {
         alert("비밀번호가 변경되었습니다.");
         setIsPwModal(false);
@@ -146,36 +152,37 @@ const handleSaveProfile = async () => {
     }
   };
 
-const handleDeleteAccount = async () => {
-  try {
-    const res = await deleteUser(); 
-    if (res.status === 200) {
-      alert("탈퇴가 완료되었습니다.");
-      localStorage.clear();
-      navigate("/");
-      window.location.reload();
-    }
-  } catch (error) {
-    console.error("탈퇴 에러 상세:", error.response?.data);
-    alert(error.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.");
-  }
-};
-
-
-const handleLogout = async () => {
-  if (window.confirm("로그아웃 하시겠습니까?")) {
+  const handleDeleteAccount = async () => {
     try {
-      await logout(); 
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      navigate("/");
-      window.location.reload();
+      const res = await deleteUser();
+      if (res.status === 200) {
+        alert("탈퇴가 완료되었습니다.");
+        localStorage.clear();
+        navigate("/");
+        window.location.reload();
+      }
     } catch (error) {
-      console.error("로그아웃 실패:", error);
-      alert("로그아웃 실패")
-    } 
-  }
-};
+      console.error("탈퇴 에러 상세:", error.response?.data);
+      alert(
+        error.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.",
+      );
+    }
+  };
+
+  const handleLogout = async () => {
+    if (window.confirm("로그아웃 하시겠습니까?")) {
+      try {
+        await logout();
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        navigate("/");
+        window.location.reload();
+      } catch (error) {
+        console.error("로그아웃 실패:", error);
+        alert("로그아웃 실패");
+      }
+    }
+  };
 
   if (isLoading)
     return (
@@ -225,8 +232,11 @@ const handleLogout = async () => {
             <Check_box>
               <Email_box>
                 <Email_text>이메일 알림</Email_text>
-                <Email_check>
-                  <Email_checkbtn></Email_checkbtn>
+                <Email_check
+                  isOn={emailAlert}
+                  onClick={() => setEmailAlert((v) => !v)}
+                >
+                  <Email_checkbtn isOn={emailAlert} />
                 </Email_check>
               </Email_box>
               <Password_change>
@@ -244,12 +254,15 @@ const handleLogout = async () => {
             </Log_box>
           </Info_box>
           <Guitar_box>
-            
             <Locate_box>
               <Locate_text>
                 더 나은 서비스를 위해 의견을 들려주세요!
               </Locate_text>
-              <Locate_btn onClick={() => window.open("https://forms.gle/c5TUTd2cjfiC3qt56", "_blank")}>
+              <Locate_btn
+                onClick={() =>
+                  window.open("https://forms.gle/c5TUTd2cjfiC3qt56", "_blank")
+                }
+              >
                 설문조사 하러가기 <img src={ReverseArrow} alt="" />
               </Locate_btn>
             </Locate_box>
@@ -297,32 +310,32 @@ const handleLogout = async () => {
             </Out_modal>
             <Change_box>
               <Input_box>
-              <Pass_box>
+                <Pass_box>
                   <Change_pass>기존 비밀번호</Change_pass>
-                  <Pass_input placeholder="기존 비밀번호를 입력해주세요"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  <Pass_input
+                    placeholder="기존 비밀번호를 입력해주세요"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </Pass_box>
                 <Pass_box>
                   <Change_pass>비밀번호</Change_pass>
-                  <Pass_input placeholder="변경할 비밀번호를 입력해주세요"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  <Pass_input
+                    placeholder="변경할 비밀번호를 입력해주세요"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
                   />
                 </Pass_box>
                 <Checking_box>
                   <Check_pass>비밀번호 확인</Check_pass>
-                  <Check_input 
-                  placeholder="변경할 비밀번호를 다시 입력해주세요"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  <Check_input
+                    placeholder="변경할 비밀번호를 다시 입력해주세요"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                 </Checking_box>
               </Input_box>
-              <Save_button onClick={handleChangePassword}>
-                저장
-              </Save_button>
+              <Save_button onClick={handleChangePassword}>저장</Save_button>
             </Change_box>
           </Password_modal>
         </Password_back>
@@ -490,33 +503,26 @@ const Email_text = styled.div`
 const Email_check = styled.div`
   width: 46px;
   height: 24px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid ${({ isOn }) => (isOn ? "#fcd671" : "#e0e0e0")};
   box-sizing: border-box;
   border-radius: 50px;
-  background-color: #fff;
-  transition: 0.1s ease-in;
+  background-color: ${({ isOn }) => (isOn ? "#fcd671" : "#fff")};
+  transition: 0.2s ease-in;
   position: relative;
   cursor: pointer;
-  &:focus-within {
-    background-color: #fcd671;
-    border-color: #fcd671;
-  }
-  &:focus-within > button {
-    background-color: #fff;
-    left: 25px;
-  }
 `;
+
 const Email_checkbtn = styled.button`
   width: 18px;
   height: 18px;
   position: absolute;
-  left: 3px;
+  left: ${({ isOn }) => (isOn ? "25px" : "3px")};
   top: 2px;
-  background-color: #fcd671;
+  background-color: ${({ isOn }) => (isOn ? "#fff" : "#fcd671")};
   border: none;
   border-radius: 50px;
   transition: 0.2s ease-in;
-  z-index: 1;
+  pointer-events: none; 
   outline: none;
 `;
 const Password_change = styled.div`
