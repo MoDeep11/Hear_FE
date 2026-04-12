@@ -57,7 +57,8 @@ const Diary = () => {
       alert("삭제되었습니다.");
       navigate("/home");
     } catch (error) {
-      alert("일기 삭제에 실패했습니다.", error);
+      console.error("일기 삭제 실패:", error);
+      alert("일기 삭제에 실패했습니다.");
     }
   };
 
@@ -162,9 +163,7 @@ const Diary = () => {
 
           {diary.aiFeedback && (
             <AiFeedbackBox>
-              <AiFeedback>
-                {diary.aiFeedback}
-              </AiFeedback>
+              <AiFeedback>{diary.aiFeedback}</AiFeedback>
               <AiFeedbackIcon src={Star} alt="AI 피드백" />
             </AiFeedbackBox>
           )}
