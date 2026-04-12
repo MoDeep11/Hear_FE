@@ -12,6 +12,7 @@ import Star from "../assets/Star.svg";
 import DefaultIcon from "../assets/NoImg.svg";
 import { useNavigate } from "react-router-dom";
 
+import { getUserSummary } from "../apis/user";
 import { getDiariesList, getDiaryRecommendation } from "../apis/diaries";
 
 const emotionMap = {
@@ -29,6 +30,7 @@ const Home = () => {
   const [totalDays, setTotalDays] = useState(0);
   const [recentPhotos, setRecentPhotos] = useState([]);
   const [recommendation, setRecommendation] = useState(null);
+  const [summary, setSummary] = useState(null);
 
   const handlePhotoClick = (diaryId) => {
     navigate(`/diary/${diaryId}`);
@@ -55,6 +57,9 @@ const Home = () => {
         const recRes = await getDiaryRecommendation();
         const recData = recRes?.data ?? recRes;
         if (recData) setRecommendation(recData);
+
+        const summaryRes = await getUserSummary();
+        setSummary(summaryRes.data);
       } catch (error) {
         console.error("데이터 로딩 실패:", error);
       }
@@ -62,6 +67,35 @@ const Home = () => {
 
     fetchData();
   }, []);
+
+  const getGraphStyle = () => {
+    if (!summary || !summary.emotionDistribution) return { background: "#eee" };
+
+    const dist = summary.emotionDistribution;
+    const values = dist.values || dist;
+
+    const total = Object.values(values).reduce((a, b) => a + b, 0);
+    if (total === 0) return { background: "#eee" };
+
+    let currentPos = 0;
+    const gradientParts = [];
+
+    Object.keys(emotionMap).forEach((key) => {
+      const count = values[key] || 0;
+      if (count > 0) {
+        const percentage = (count / total) * 100;
+        const color = emotionMap[key].color;
+        gradientParts.push(
+          `${color} ${currentPos}% ${currentPos + percentage}%`,
+        );
+        currentPos += percentage;
+      }
+    });
+
+    return {
+      background: `linear-gradient(to right, ${gradientParts.join(", ")})`,
+    };
+  };
 
   const formatDate = (date) => {
     const year = date.getFullYear();
@@ -167,18 +201,19 @@ const Home = () => {
 
             <StatSection>
               <TotalDate>
-                <Graph></Graph>
+                <Graph style={getGraphStyle()} />
                 <DateCount>
                   총 <span>{totalDays}일</span>
                 </DateCount>
               </TotalDate>
+
               <Category>
                 <ul>
-                  <Angry as="li">화남</Angry>
-                  <Normal as="li">평범</Normal>
-                  <Happyspan as="li">행복</Happyspan>
-                  <Sad as="li">슬픔</Sad>
-                  <Anxiety as="li">불안</Anxiety>
+                  <Happyspan>행복</Happyspan>
+                  <Sad>슬픔</Sad>
+                  <Angry>화남</Angry>
+                  <Anxiety>불안</Anxiety>
+                  <Normal>평범</Normal>
                 </ul>
               </Category>
             </StatSection>
@@ -435,9 +470,11 @@ const TotalDate = styled.div`
 const Graph = styled.div`
   width: 100%;
   height: 14px;
-  border: 1px solid #f3f3f3;
-  box-shadow: 2px 2px 4px #f3f3f3;
+  background-color: #f3f3f3;
   border-radius: 50px;
+  overflow: hidden;
+  transition: background 0.5s ease;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const DateCount = styled.p`
