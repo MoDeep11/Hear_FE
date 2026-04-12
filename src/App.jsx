@@ -15,20 +15,30 @@ import { useNavigate } from "react-router-dom";
 function App() {
 
   const navigate = useNavigate();
-  useEffect(() => {
-    const checkTokenExpiry = () => {
-      const expiry = localStorage.getItem("tokenExpiry");
-      const expiryMs = Number(expiry);
-      if (Number.isFinite(expiryMs) && Date.now() > expiryMs) {
-        alert("세션이 만료되었습니다. 다시 로그인해주세요.");
-        localStorage.clear();
-        navigate("/login");
-      }
-    };
-    checkTokenExpiry();
-    const interval = setInterval(checkTokenExpiry, 60000);
-    return () => clearInterval(interval);
-  }, [navigate]);
+useEffect(() => {
+  const checkTokenExpiry = () => {
+    const token = localStorage.getItem("accessToken"); 
+    const expiry = localStorage.getItem("tokenExpiry");
+
+    if (!token) {
+      return;
+    }
+
+    const expiryMs = Number(expiry);
+    const now = Date.now();
+    
+    if (!expiry || !Number.isFinite(expiryMs) || now > expiryMs) {
+      alert("세션이 만료되었습니다. 다시 로그인해주세요.");
+      localStorage.clear();
+      navigate("/");
+    }
+  };
+
+  checkTokenExpiry();
+  const interval = setInterval(checkTokenExpiry, 60000);
+
+  return () => clearInterval(interval);
+}, [navigate]);
 
   return (
     <Routes>
