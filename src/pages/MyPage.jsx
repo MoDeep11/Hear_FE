@@ -1,5 +1,3 @@
-// 마이페이지
-
 import styled from "@emotion/styled";
 import Header from "../components/Header.jsx";
 import Happy from "../assets/Happy.svg";
@@ -8,31 +6,192 @@ import Profile from "../assets/Profile.svg";
 import ReverseArrow from "../assets/Rev-Arrow.svg";
 import Sad from "../assets/Sadness.svg";
 import Arrow from "../assets/Arrow.svg";
-import Random from "../assets/random.svg"
-import Upload_btnimg from "../assets/Upload_btn.svg"
-import { useState } from "react";
+import Random from "../assets/random.svg";
+import Upload_btnimg from "../assets/Upload_btn.svg";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { getMyInfo, updateProfile, changePassword, deleteUser, logout, getRandomProfile } from "../apis/mypages.api.js";
 
 const Mypage = () => {
-
-  const user_info = {
-  "status": "success",
-  "data": {
-    "userId": 102,
-    "email": "seungri@example.com",
-    "nickname": "쿠수리",
-    "profileImageUrl": "https://s3.../profiles/user_102.png",
-    "createdAt": "2025-06-09T10:00:00Z",
-    "updatedAt": "2026-03-04T23:55:00Z"
-  }
-} 
+  const [userInfo, setUserInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [isChangeModal, setIsChangeModal] = useState(false);
   const [isDeleteModal, setIsDeleteModal] = useState(false);
   const [isPwModal, setIsPwModal] = useState(false);
 
-  const navigate = useNavigate()
-  
+  const [newNickname, setNewNickname] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const fileInputRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const res = await getMyInfo();
+        setUserInfo(res.data);
+      } catch (error) {
+        console.error("유저 정보 로드 실패:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  const [password, setPassword] = useState("");
+
+  const handleOpenEditModal = () => {
+    if (!userInfo) return;
+    setNewNickname(userInfo.nickname);
+    setPreviewImage(userInfo.profileImageUrl || Profile);
+    setSelectedFile(null);
+    setIsChangeModal(true);
+  };
+
+    const handleOpenDeleteModal = () => {
+    if (!userInfo) return;
+    setIsDeleteModal(true);
+  };
+
+      const handleOpenPwModal = () => {
+    if (!userInfo) return;
+    setConfirmPassword("");
+    setPassword("")
+    setNewPassword("")
+    setIsPwModal(true);
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+const handleRandomProfile = async () => {
+  try {
+    const res = await getRandomProfile();
+    if (res.data?.profileImageUrl) {
+      setPreviewImage(res.data.profileImageUrl);
+      setUserInfo((prev) => ({
+        ...prev,
+        profileImageUrl: res.data.profileImageUrl, 
+      }));
+      setSelectedFile(null);
+    }
+  } catch (error) {
+    console.error("랜덤 프로필 실패:", error);
+  }
+};
+
+const handleSaveProfile = async () => {
+  if (!newNickname.trim()) return alert("닉네임을 입력해주세요.");
+
+  try {
+    const formData = new FormData();
+    const jsonBlob = new Blob(
+      [JSON.stringify({ nickname: newNickname })],
+      { type: "application/json" }
+    );
+    formData.append("data", jsonBlob);
+    formData.append("image", selectedFile ? selectedFile : null);
+
+    const res = await updateProfile(formData);
+
+    if (res.status === 200) {
+      alert("프로필이 성공적으로 변경되었습니다.");
+    
+      const updatedUser = await getMyInfo();
+      setUserInfo(updatedUser.data);
+      
+      setIsChangeModal(false);
+    }
+  } catch (error) {
+    console.error("수정 실패:", error);
+    alert("수정 중 오류가 발생했습니다.");
+  }
+};
+
+  const handleChangePassword = async () => {
+    if (!newPassword || newPassword !== confirmPassword || !password) {
+      return alert("비밀번호가 일치하지 않거나 입력되지 않았습니다.");
+    }
+
+    try {
+      const res = await changePassword({
+         oldPassword: password,
+         newPassword: newPassword,
+         confirmPassword: confirmPassword
+        
+        });
+      if (res.status === 200) {
+        alert("비밀번호가 변경되었습니다.");
+        setIsPwModal(false);
+      }
+    } catch (error) {
+      alert(
+        "비밀번호 변경 실패: " + (error.response?.data?.message || "오류 발생"),
+      );
+    }
+  };
+
+const handleDeleteAccount = async () => {
+  try {
+    const res = await deleteUser(); 
+    if (res.status === 200) {
+      alert("탈퇴가 완료되었습니다.");
+      localStorage.clear();
+      navigate("/");
+      window.location.reload();
+    }
+  } catch (error) {
+    console.error("탈퇴 에러 상세:", error.response?.data);
+    alert(error.response?.data?.message || "탈퇴 처리 중 오류가 발생했습니다.");
+  }
+};
+
+
+const handleLogout = async () => {
+  if (window.confirm("로그아웃 하시겠습니까?")) {
+    try {
+      await logout(); 
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      navigate("/");
+      window.location.reload();
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      alert("로그아웃 실패")
+    } 
+  }
+};
+
+  if (isLoading)
+    return (
+      <Body>
+        <Header />
+        <div>로딩 중...</div>
+      </Body>
+    );
+  if (!userInfo)
+    return (
+      <Body>
+        <Header />
+        <div>정보를 불러올 수 없습니다.</div>
+      </Body>
+    );
+
   return (
     <Body>
       <Header />
@@ -40,22 +199,27 @@ const Mypage = () => {
         <Page_main>
           <Info_box>
             <Profile_box>
-              <Profile_img onClick={()=>{setIsChangeModal(true)}}>
+              <Profile_img onClick={handleOpenEditModal}>
                 <Img_box>
-                  <img src={Profile} alt="" />
+                  <img
+                    src={userInfo.profileImageUrl || Profile}
+                    alt="Profile"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
                 </Img_box>
-                <Img_edit>
-                  <img src={Edit_pen} alt="" />
-                </Img_edit>
               </Profile_img>
               <Nickname_box>
                 <Nick_name>
-                  {user_info.data.nickname}
-                  <Nickname_edit onClick={()=>{setIsChangeModal(true)}}>
-                    <img src={Edit_pen} alt="" />
+                  {userInfo.nickname}
+                  <Nickname_edit onClick={handleOpenEditModal}>
+                    <img src={Edit_pen} alt="Edit" />
                   </Nickname_edit>
                 </Nick_name>
-                <Email>{user_info.data.email}</Email>
+                <Email>{userInfo.email}</Email>
               </Nickname_box>
             </Profile_box>
             <Check_box>
@@ -67,22 +231,25 @@ const Mypage = () => {
               </Email_box>
               <Password_change>
                 <Password_text>비밀번호 변경</Password_text>
-                <Password_click onClick={()=>{setIsPwModal(true)}}>
-                  <img src={ReverseArrow} alt="" />
+                <Password_click onClick={handleOpenPwModal}>
+                  <img src={ReverseArrow} alt="Change" />
                 </Password_click>
               </Password_change>
             </Check_box>
             <Log_box>
-              <Log_out onClick={()=>{navigate("/")}}>로그아웃</Log_out>
-              <User_delete onClick={()=>{setIsDeleteModal(true)}}>회원 탈퇴</User_delete>
+              <Log_out onClick={handleLogout}>로그아웃</Log_out>
+              <User_delete onClick={handleOpenDeleteModal}>
+                회원 탈퇴
+              </User_delete>
             </Log_box>
           </Info_box>
           <Guitar_box>
+            
             <Locate_box>
               <Locate_text>
                 더 나은 서비스를 위해 의견을 들려주세요!
               </Locate_text>
-              <Locate_btn>
+              <Locate_btn onClick={() => window.open("https://forms.gle/c5TUTd2cjfiC3qt56", "_blank")}>
                 설문조사 하러가기 <img src={ReverseArrow} alt="" />
               </Locate_btn>
             </Locate_box>
@@ -93,89 +260,125 @@ const Mypage = () => {
         </Page_main>
       </Page_container>
 
-      {/*계정 탈퇴 모달*/}
-{isDeleteModal && 
-      <Delete_modalback onClick={() => {setIsDeleteModal(false)}}>
-        <Modal_main onClick={(e) => {e.stopPropagation()}}>
-          <Delete_textbox>
-            <Sadness>
-            <img src={Sad} alt="" />
-          </Sadness>
-          <Text_box>
-            <Check_title>정말 탈퇴하시겠어요?</Check_title>
-            <Check_text>
-              지금 탈퇴하시면 작성하신 일기 추억들을 다시 볼 수 없게됩니다.{" "}
-              <span>그래도 탈퇴를 진행하시겠어요?</span>
-            </Check_text>
-          </Text_box>
-            
-          </Delete_textbox>
-
-          <Delete_btnbox >
-            <Delete_button onClick={()=>{navigate("/")}}>회원탈퇴</Delete_button>
-            <Cancel_button onClick={()=>{setIsDeleteModal(false)}}>취소</Cancel_button>
-          </Delete_btnbox>
-        </Modal_main>
-      </Delete_modalback>
-}
+      {/* 계정 탈퇴 모달 */}
+      {isDeleteModal && (
+        <Delete_modalback onClick={() => setIsDeleteModal(false)}>
+          <Modal_main onClick={(e) => e.stopPropagation()}>
+            <Delete_textbox>
+              <Sadness>
+                <img src={Sad} alt="Sad" />
+              </Sadness>
+              <Text_box>
+                <Check_title>정말 탈퇴하시겠어요?</Check_title>
+                <Check_text>
+                  지금 탈퇴하시면 작성하신 일기 추억들을 다시 볼 수 없게됩니다.{" "}
+                  <span>그래도 탈퇴를 진행하시겠어요?</span>
+                </Check_text>
+              </Text_box>
+            </Delete_textbox>
+            <Delete_btnbox>
+              <Delete_button onClick={handleDeleteAccount}>
+                회원탈퇴
+              </Delete_button>
+              <Cancel_button onClick={() => setIsDeleteModal(false)}>
+                취소
+              </Cancel_button>
+            </Delete_btnbox>
+          </Modal_main>
+        </Delete_modalback>
+      )}
 
       {/* 비밀번호 변경 모달 */}
-      {isPwModal&&
-      <Password_back onClick={() => {setIsPwModal(false)}}>
-        <Password_modal onClick={(e) => {e.stopPropagation()}}>
-          <Out_modal onClick={()=>{setIsPwModal(false)}}>
-            <img src={Arrow} alt="" />
-          </Out_modal>
-          <Change_box>
-            <Input_box>
+      {isPwModal && (
+        <Password_back onClick={() => setIsPwModal(false)}>
+          <Password_modal onClick={(e) => e.stopPropagation()}>
+            <Out_modal onClick={() => setIsPwModal(false)}>
+              <img src={Arrow} alt="Back" />
+            </Out_modal>
+            <Change_box>
+              <Input_box>
               <Pass_box>
-                <Change_pass>비밀번호</Change_pass>
-                <Pass_input placeholder="변경할 비밀번호를 입력해주세요"></Pass_input>
-              </Pass_box>
-              <Checking_box>
-                <Check_pass>비밀번호 확인</Check_pass>
-                <Check_input placeholder="변경할 비밀번호를 다시 입력해주세요"></Check_input>
-              </Checking_box>
-            </Input_box>
-            <Save_button onClick={()=>{setIsPwModal(false)}}>저장</Save_button>
-          </Change_box>
-        </Password_modal>
-      </Password_back>
-}
+                  <Change_pass>기존 비밀번호</Change_pass>
+                  <Pass_input placeholder="기존 비밀번호를 입력해주세요"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  />
+                </Pass_box>
+                <Pass_box>
+                  <Change_pass>비밀번호</Change_pass>
+                  <Pass_input placeholder="변경할 비밀번호를 입력해주세요"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </Pass_box>
+                <Checking_box>
+                  <Check_pass>비밀번호 확인</Check_pass>
+                  <Check_input 
+                  placeholder="변경할 비밀번호를 다시 입력해주세요"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </Checking_box>
+              </Input_box>
+              <Save_button onClick={handleChangePassword}>
+                저장
+              </Save_button>
+            </Change_box>
+          </Password_modal>
+        </Password_back>
+      )}
 
-      {/*프로필 변경 모달*/}
-      {isChangeModal &&
-      <Profile_modalback onClick={() => {setIsChangeModal(false)}}>
-        <Profile_modal onClick={(e) => {e.stopPropagation()}}>
-          <Out_modal onClick={()=>{setIsChangeModal(false)}}>
-            <img src={Arrow} alt="" />
-          </Out_modal>
-          <Pf_modalmain>
-            <Profile_change>
-              <Change_imgbox>
-                <Change_img>
-                  <img src={Profile} alt="" />
-                </Change_img>
-                <Profile_rand>
-                  <img src={Random} alt="" />
-                </Profile_rand>
-              </Change_imgbox>
-              <Change_nickbox>
-                <Nick_text>닉네임 변경</Nick_text>
-                <Nick_input placeholder="변경할 닉네임을 입력해주세요"></Nick_input>
-              </Change_nickbox>
-            </Profile_change>
-            <Profile_btnbox>
-              <Img_upload>
-              <img src={Upload_btnimg} alt="" width={16} height={16}/>
-              파일 업로드
-              </Img_upload>
-              <Save_btn onClick={()=>{setIsChangeModal(false)}}>저장</Save_btn>
-            </Profile_btnbox>
-          </Pf_modalmain>
-        </Profile_modal>
-      </Profile_modalback>
-}
+      {/* 프로필 변경 모달 */}
+      {isChangeModal && (
+        <Profile_modalback onClick={() => setIsChangeModal(false)}>
+          <Profile_modal onClick={(e) => e.stopPropagation()}>
+            <Out_modal onClick={() => setIsChangeModal(false)}>
+              <img src={Arrow} alt="Close" />
+            </Out_modal>
+            <Pf_modalmain>
+              <Profile_change>
+                <Change_imgbox>
+                  <img
+                    src={previewImage}
+                    alt="Preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  <Profile_rand onClick={handleRandomProfile}>
+                    <img src={Random} alt="Random" />
+                  </Profile_rand>
+                </Change_imgbox>
+                <Change_nickbox>
+                  <Nick_text>닉네임 변경</Nick_text>
+                  <Nick_input
+                    value={newNickname}
+                    onChange={(e) => setNewNickname(e.target.value)}
+                    placeholder="변경할 닉네임을 입력해주세요"
+                  />
+                </Change_nickbox>
+              </Profile_change>
+              <Profile_btnbox>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+                <Img_upload onClick={() => fileInputRef.current.click()}>
+                  <img src={Upload_btnimg} alt="" width={16} height={16} />
+                  파일 업로드
+                </Img_upload>
+                <Save_btn onClick={handleSaveProfile}>저장</Save_btn>
+              </Profile_btnbox>
+            </Pf_modalmain>
+          </Profile_modal>
+        </Profile_modalback>
+      )}
     </Body>
   );
 };
@@ -230,25 +433,22 @@ const Profile_img = styled.div`
   height: 60px;
   border: 2px solid #e0e0e0;
   border-radius: 50px;
-  background-color: #cfcfcf;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: hidden;
   cursor: pointer;
 `;
 const Img_box = styled.div`
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
+  background-color: #cfcfcf;
   display: flex;
   align-items: center;
   justify-content: center;
 `;
-const Img_edit = styled.div`
-  position: absolute;
-  bottom: -4px;
-  right: 2px;
-`;
+
 const Nickname_box = styled.div`
   display: flex;
   flex-direction: column;
@@ -387,6 +587,7 @@ const Locate_btn = styled.button`
   font-weight: 600;
   color: #575141;
   background-color: #fcd671;
+  cursor: pointer;
 `;
 const Character = styled.div`
   width: 80px;
@@ -427,7 +628,7 @@ const Text_box = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
 const Check_title = styled.div`
   font-size: 20px;
   font-weight: 600;
@@ -494,7 +695,7 @@ const Password_back = styled.div`
 const Password_modal = styled.div`
   position: relative;
   width: 480px;
-  height: 352px;
+  height: 432px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -512,7 +713,7 @@ const Out_modal = styled.div`
   cursor: pointer;
 `;
 const Change_box = styled.div`
-  display: flex ;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 100%;
@@ -525,7 +726,7 @@ const Input_box = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
-`
+`;
 const Pass_box = styled.div`
   width: 100%;
   height: 100%;
@@ -539,16 +740,16 @@ const Change_pass = styled.p`
   color: #575141;
 `;
 const Pass_input = styled.input`
-width: 100%;
-height: 100%;
-font-weight: 500;
-font-size: 16px;
-border: 1px solid #CFD3DC;
-padding: 9.5px 16px;
-border-radius: 12px;
-::placeholder {
-  color: #CFD3DC;
-}
+  width: 100%;
+  height: 100%;
+  font-weight: 500;
+  font-size: 16px;
+  border: 1px solid #cfd3dc;
+  padding: 9.5px 16px;
+  border-radius: 12px;
+  ::placeholder {
+    color: #cfd3dc;
+  }
 `;
 const Checking_box = styled.div`
   width: 100%;
@@ -556,7 +757,6 @@ const Checking_box = styled.div`
   display: flex;
   flex-direction: column;
   gap: 4px;
-
 `;
 const Check_pass = styled.div`
   font-size: 16px;
@@ -564,16 +764,16 @@ const Check_pass = styled.div`
   color: #575141;
 `;
 const Check_input = styled.input`
-width: 100%;
-height: 100%;
-font-weight: 500;
-font-size: 16px;
-border: 1px solid #CFD3DC;
-padding: 9.5px 16px;
-border-radius: 12px;
-::placeholder {
-  color: #CFD3DC;
-}
+  width: 100%;
+  height: 100%;
+  font-weight: 500;
+  font-size: 16px;
+  border: 1px solid #cfd3dc;
+  padding: 9.5px 16px;
+  border-radius: 12px;
+  ::placeholder {
+    color: #cfd3dc;
+  }
 `;
 const Save_button = styled.div`
   width: 100%;
@@ -583,7 +783,7 @@ const Save_button = styled.div`
   justify-content: center;
   font-size: 16px;
   font-weight: 600;
-  background-color: #FCD671;
+  background-color: #fcd671;
   color: #575141;
   border-radius: 12px;
   cursor: pointer;
@@ -600,7 +800,7 @@ const Profile_modalback = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`
+`;
 
 const Profile_modal = styled.div`
   width: 480px;
@@ -611,7 +811,7 @@ const Profile_modal = styled.div`
   display: flex;
   flex-direction: column;
   border-radius: 12px;
-`
+`;
 const Pf_modalmain = styled.div`
   width: 100%;
   height: 100%;
@@ -619,79 +819,76 @@ const Pf_modalmain = styled.div`
   flex-direction: column;
   justify-content: space-between;
   gap: 32px;
-`
+`;
 const Profile_change = styled.div`
   gap: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
 const Change_imgbox = styled.div`
   width: 60px;
   height: 60px;
-  background-color: #CFCFCF;
-  border: 2px solid #E0E0E0;
+  background-color: #cfcfcf;
+  border: 2px solid #e0e0e0;
   border-radius: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   box-sizing: border-box;
-`
-const Change_img = styled.div`
-width: 40px;
-height: 40px;
-`
-const Profile_rand = styled.div`
+  overflow: hidden;
+`;
+
+const Profile_rand = styled.button`
   position: absolute;
-  right: -7px;
-  bottom: -7px;
+  right: 210px;
+  top: 105px;
   width: 22px;
   height: 22px;
   display: flex;
   background-color: #fff;
-  border: 1px solid #F3F3F3;
+  border: 1px solid #f3f3f3;
   border-radius: 12px;
   box-sizing: border-box;
   align-items: center;
   justify-content: center;
-`
+  cursor: pointer;
+`;
 const Change_nickbox = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 4px;
-`
+`;
 const Nick_text = styled.p`
   font-size: 16px;
   font-weight: 500;
   color: #575141;
-`
+`;
 const Nick_input = styled.input`
   width: 100%;
   height: auto;
   padding: 9.5px 16px;
   font-size: 16px;
   font-weight: 500;
-  border: 1px solid #CFD3DC;
+  border: 1px solid #cfd3dc;
   border-radius: 12px;
-  ::placeholder{
-    color: #CFD3DC;
+  ::placeholder {
+    color: #cfd3dc;
   }
-  :focus{
+  :focus {
     outline: none;
   }
-`
+`;
 const Profile_btnbox = styled.div`
   width: 100%;
   height: 100%;
   display: flex;
   gap: 12px;
-
-`
+`;
 const Img_upload = styled.button`
   width: 100%;
-  border: 2px solid #FCD671;
+  border: 2px solid #fcd671;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -702,7 +899,8 @@ const Img_upload = styled.button`
   font-size: 16px;
   border-radius: 12px;
   box-sizing: border-box;
-`
+  cursor: pointer;
+`;
 const Save_btn = styled.button`
   width: 100%;
   background-color: #fcd671;
@@ -716,6 +914,6 @@ const Save_btn = styled.button`
   font-size: 16px;
   border-radius: 12px;
   cursor: pointer;
-`
+`;
 
 export default Mypage;

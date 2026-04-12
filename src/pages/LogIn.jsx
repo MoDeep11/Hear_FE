@@ -5,6 +5,7 @@ import Left from "../assets/Left.svg";
 import Right from "../assets/Right.svg";
 import Arrow from "../assets/Arrow.svg";
 import Check_Password from "../assets/SeePass.svg";
+import Pweye from "../assets/openPw.svg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../apis/auth.js";
@@ -51,12 +52,13 @@ const Login = () => {
 
       if (accessToken) {
         localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("tokenExpiry", Date.now() + 60 * 60 * 1000);
         if (refreshToken) {
           localStorage.setItem("refreshToken", refreshToken);
         }
 
         alert("로그인 성공!");
-        navigate("/");
+        navigate("/home");
       }
     } catch (error) {
       alert(
@@ -90,6 +92,7 @@ const Login = () => {
                     placeholder="이메일을 입력해주세요"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                   ></Email_text>
                   <Email_check_text>{message}</Email_check_text>
                 </Email_box>
@@ -102,12 +105,15 @@ const Login = () => {
                       placeholder="비밀번호를 입력해주세요"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                     ></Password_text>
                     <img
-                      src={Check_Password}
+                      src={showPw ? Pweye : Check_Password}
                       alt="비밀번호 확인"
                       onClick={() => setShowPw((v) => !v)}
                       title={showPw ? "숨기기" : "보기"}
+                      width={16}
+                      height={16}
                     />
                   </Password_input>
                   <Email_check_text>{pwmessage}</Email_check_text>

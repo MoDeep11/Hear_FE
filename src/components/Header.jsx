@@ -8,29 +8,33 @@ import { useState, useEffect } from "react";
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLogin, setIsLogin] = useState(false);
 
+  const isLogin = !!localStorage.getItem("accessToken");
+  
+  const [, forceUpdate] = useState(0);
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
-    setIsLogin(!!token); 
-  }, [location.pathname]); 
-
-
+    const handleStorage = () => forceUpdate((n) => n + 1);
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   return (
     <HeaderBody>
       <HeaderLeft onClick={() => navigate("/")}>
         <img src={Logo} alt="HEAR_FOR_YOU" />
       </HeaderLeft>
-      
-      <HeaderMiddle>
-        <MenuText onClick={() => navigate("/home")} isActive={location.pathname === "/home"}>홈</MenuText>
-        <MenuText onClick={() => navigate("/ai/chats")} isActive={location.pathname === "/ai/chats"}>AI일기</MenuText>
-        <MenuText onClick={() => navigate("/photobook")} isActive={location.pathname === "/photobook"}>사진첩</MenuText>
-        <MenuText onClick={() => navigate("/statics")} isActive={location.pathname === "/statics"}>통계</MenuText>
-      </HeaderMiddle>
-      
-      <HeaderRight>
+
+      {/* 로그인 시에만 표시 */}
+      {isLogin && (
+        <HeaderMiddle>
+          <MenuText onClick={() => navigate("/home")} isActive={location.pathname === "/home"}>홈</MenuText>
+          <MenuText onClick={() => navigate("/ai/chats")} isActive={location.pathname === "/ai/chats"}>AI일기</MenuText>
+          <MenuText onClick={() => navigate("/photobook")} isActive={location.pathname === "/photobook"}>사진첩</MenuText>
+          <MenuText onClick={() => navigate("/statics")} isActive={location.pathname === "/statics"}>통계</MenuText>
+        </HeaderMiddle>
+      )}
+
+      <HeaderRight isLogin={isLogin}>
         {isLogin ? (
           <Login_complete onClick={() => navigate("/mypage")}>
             <User_page>
@@ -103,10 +107,8 @@ const MenuText = styled.p`
 `;
 
 const HeaderRight = styled.div`
-  /* 고정 너비보다는 내부 콘텐츠에 맞게 늘어나도록 처리하는 게 깔끔합니다 */
   min-width: 81px;
   height: 35px;
-  background-color: #ffe39a;
   border-radius: 50px;
   display: flex;
   align-items: center;
@@ -114,6 +116,8 @@ const HeaderRight = styled.div`
   padding: 8px 12px;
   flex-shrink: 0;
   cursor: pointer;
+
+  background-color: ${(props) => (props.isLogin ? "transparent" : "#ffe39a")};
 `;
 const Login_complete = styled.div`
   display: flex;
