@@ -42,7 +42,6 @@ const Statics = () => {
       try {
         const res = await getStatistics(yearNum, dateNum, controller.signal);
         console.log("통계 데이터:", res.data);
-        setStatistics(res.data);
       } catch (error) {
         if(error.name === 'AbortError') return;
         console.error("통계 로드 실패:", error);
