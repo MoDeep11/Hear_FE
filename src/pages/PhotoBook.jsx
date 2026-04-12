@@ -8,7 +8,7 @@ import { getMyGallery } from "../apis/photo.api.js";
 import { useNavigate } from "react-router-dom"; 
 
 const Photo_Book = () => {
-  const navigate = useNavigate(); // 추가
+  const navigate = useNavigate(); 
   const [dateNum, setDateNum] = useState(4);
   const [yearNum, setYearNum] = useState(2026);
   const [galleryData, setGalleryData] = useState([]);
@@ -45,7 +45,7 @@ const Photo_Book = () => {
 
   const filteredData = appliedSearch.trim()
     ? galleryData.filter((item) =>
-        item.tags.some((tag) =>
+        (item.tags || []).some((tag) =>
           tag.toLowerCase().includes(appliedSearch.toLowerCase())
         )
       )
