@@ -244,11 +244,12 @@ const handleLogout = async () => {
             </Log_box>
           </Info_box>
           <Guitar_box>
+            
             <Locate_box>
               <Locate_text>
                 더 나은 서비스를 위해 의견을 들려주세요!
               </Locate_text>
-              <Locate_btn>
+              <Locate_btn onClick={() => window.open("https://forms.gle/c5TUTd2cjfiC3qt56", "_blank")}>
                 설문조사 하러가기 <img src={ReverseArrow} alt="" />
               </Locate_btn>
             </Locate_box>
@@ -586,6 +587,7 @@ const Locate_btn = styled.button`
   font-weight: 600;
   color: #575141;
   background-color: #fcd671;
+  cursor: pointer;
 `;
 const Character = styled.div`
   width: 80px;
