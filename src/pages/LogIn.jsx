@@ -52,9 +52,9 @@ const Login = () => {
 
       if (accessToken) {
         localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("tokenExpiry", Date.now() + 60 * 60 * 1000);
         if (refreshToken) {
           localStorage.setItem("refreshToken", refreshToken);
-          localStorage.setItem("tokenExpiry", Date.now() + 60 * 60 * 1000);
         }
 
         alert("로그인 성공!");
