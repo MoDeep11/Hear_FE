@@ -9,24 +9,20 @@ import { getStatistics } from "../apis/statics.js";
 
 const globalStyles = css`
   @property --rate {
-    syntax: '<percentage>';
+    syntax: "<percentage>";
     inherits: false;
     initial-value: 0%;
   }
 `;
-
 
 const Statics = () => {
   const colors = ["#FEA2A9", "#FCD671", "#5DC19B", "#89D9FF", "#CBA3FF"];
   const emotionLabels = ["화남", "슬픔", "행복", "불안", "평범"];
   const emotionKeys = ["ANGRY", "SAD", "HAPPY", "ANXIETY", "NEUTRAL"];
 
-  const [dateNum, setDateNum] = useState(3);
+  const [dateNum, setDateNum] = useState(4);
   const [yearNum, setYearNum] = useState(2026);
   const [statistics, setStatistics] = useState(null);
-
-  
-
 
   const maxEmotion = statistics
     ? Math.max(
@@ -36,20 +32,20 @@ const Statics = () => {
       )
     : 1;
 
-useEffect(() => {
-  const controller = new AbortController();
-  const fetchStatistics = async () => {
-    try {
-      const res = await getStatistics(yearNum, dateNum, controller.signal);
-      setStatistics(res.data);
-    } catch (error) {
-      if (error.name === 'AbortError') return;
-      console.error("통계 로드 실패:", error);
-    }
-  };
-  fetchStatistics();
-  return () => controller.abort();
-}, [yearNum, dateNum]);
+  useEffect(() => {
+    const controller = new AbortController();
+    const fetchStatistics = async () => {
+      try {
+        const res = await getStatistics(yearNum, dateNum, controller.signal);
+        setStatistics(res.data);
+      } catch (error) {
+        if (error.name === "AbortError") return;
+        console.error("통계 로드 실패:", error);
+      }
+    };
+    fetchStatistics();
+    return () => controller.abort();
+  }, [yearNum, dateNum]);
 
   const date_minus = () => {
     if (dateNum > 1) {
@@ -142,9 +138,10 @@ useEffect(() => {
               {statistics
                 ? statistics.aiReportContent
                 : "데이터를 불러오는 중..."}
+              <Message_tr></Message_tr>
+              <Message_tr></Message_tr>
             </Message>
-            <Message_tr></Message_tr>
-            <Message_tr></Message_tr>
+
             <Character>
               <img src={Happy} alt="" />
             </Character>
@@ -233,10 +230,7 @@ const Circle_graph = styled.div`
   align-items: center;
   justify-content: center;
   --rate: ${(props) => props.rate}%;
-  background: conic-gradient(
-    #fcd671 0% var(--rate),
-    #f3f3f3 var(--rate) 100%
-  );
+  background: conic-gradient(#fcd671 0% var(--rate), #f3f3f3 var(--rate) 100%);
   border: 2px solid #e0e0e0;
   transition: --rate 0.8s ease;
 `;
@@ -402,9 +396,11 @@ const Static_Message = styled.div`
   display: flex;
   gap: 38px;
   align-items: center;
+  position: relative;
 `;
 
 const Message = styled.div`
+  position: relative;
   width: 100%;
   height: 100%;
   background-color: #fff9eb;
@@ -417,19 +413,23 @@ const Message = styled.div`
   border-radius: 12px;
   border: 2px solid #e5d7b2;
 `;
-
 const Message_tr = styled.div`
   position: absolute;
-  right: 280px;
+  right: -24px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 0;
   height: 0;
   border-style: solid;
   border-width: 19px 0px 19px 24px;
   border-color: transparent transparent transparent #fff9eb;
+  z-index: 1;
+
   :nth-of-type(2) {
+    right: -26px;
     border-width: 20.5px 0px 20.5px 26px;
     border-color: transparent transparent transparent #e5d7b2;
-    right: 278px;
+    z-index: 0;
   }
 `;
 
