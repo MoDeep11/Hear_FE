@@ -86,16 +86,26 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     const fetchCalendarData = async () => {
       try {
         const yearMonth = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}`;
         const res = await getCalendars(yearMonth);
-        setCalendarData(res.data || []);
+        if (!cancelled) {
+          setCalendarData(res.data || []);
+        }
       } catch (error) {
-        console.error("캘린더 데이터 로딩 실패:", error);
+        if (!cancelled) {
+          console.error("캘린더 데이터 로딩 실패:", error);
+        }
       }
     };
     fetchCalendarData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [currentMonth]);
 
   const getGraphStyle = () => {
@@ -133,7 +143,10 @@ const Home = () => {
         return (
           <DiaryMark>
             {emotionIcon ? (
-              <EmotionIcon src={emotionIcon} alt={dayData.emotion} />
+              <EmotionIcon
+                src={emotionIcon}
+                alt={emotionMap[dayData.emotion]?.text ?? "감정"}
+              />
             ) : (
               <Dot color="#fcd671" />
             )}
