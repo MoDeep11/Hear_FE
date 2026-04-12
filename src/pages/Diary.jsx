@@ -161,9 +161,14 @@ const Diary = () => {
             </DiaryImg>
           </DiaryBox>
 
-          {diary.aiFeedback && (
+          {diary.aiFeedback ? (
             <AiFeedbackBox>
               <AiFeedback>{diary.aiFeedback}</AiFeedback>
+              <AiFeedbackIcon src={Star} alt="AI 피드백" />
+            </AiFeedbackBox>
+          ) : (
+            <AiFeedbackBox>
+              <AiFeedback>AI 피드백이 도착하지 않았어요!</AiFeedback>
               <AiFeedbackIcon src={Star} alt="AI 피드백" />
             </AiFeedbackBox>
           )}
@@ -375,11 +380,19 @@ const Dot = styled.button`
 const AiFeedbackBox = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 38px;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 `;
 
 const AiFeedback = styled.div`
   position: relative;
+  flex: 1;
+  text-align: center;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #e5d7b2;
+  background-color: #fff9eb;
   span {
     color: #daa005;
     font-weight: bold;
