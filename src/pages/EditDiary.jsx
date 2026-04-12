@@ -66,7 +66,11 @@ const EditDiary = () => {
       alert("일기가 성공적으로 수정되었습니다.");
       navigate(`/diary/${id}`);
     } catch (error) {
-      alert("일기 수정에 실패했습니다.", error);
+      console.error("일기 수정 실패:", error);
+      alert(
+        "일기 수정에 실패했습니다: " +
+          (error.response?.data?.message || error.message),
+      );
     }
   };
 
