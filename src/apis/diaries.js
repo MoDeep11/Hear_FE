@@ -4,7 +4,7 @@ import instance from "./instance";
 export const getDiaries = async (id) => {
   try {
     const res = await instance.get(`/api/v1/diaries/${id}`);
-    return res.data;
+    return res.data.data;
   } catch (error) {
     console.error("일기 조회 실패:", error);
     throw error;
