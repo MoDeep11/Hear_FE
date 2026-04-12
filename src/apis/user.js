@@ -24,8 +24,6 @@ export const getCalendars = async (yearMonth) => {
     return res.data;
   } catch (error) {
     console.error("상태 코드:", error.response?.status);
-    console.error("에러 메시지:", error.response?.data);
-    console.error("요청 헤더:", error.config?.headers);
     throw error;
   }
 };
