@@ -5,8 +5,10 @@ import Reverse_Arrow from "../assets/Rev-Arrow.svg";
 import Search_tag from "../assets/search_tag.svg";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { getMyGallery } from "../apis/photo.api.js";
+import { useNavigate } from "react-router-dom"; 
 
 const Photo_Book = () => {
+  const navigate = useNavigate(); // 추가
   const [dateNum, setDateNum] = useState(4);
   const [yearNum, setYearNum] = useState(2026);
   const [galleryData, setGalleryData] = useState([]);
@@ -100,7 +102,7 @@ const Photo_Book = () => {
             <p>사진을 불러오는 중...</p>
           ) : filteredData.length > 0 ? (
             filteredData.map((item) => (
-              <Photo key={item.id}>
+              <Photo key={item.id} onClick={() => navigate(`/diary/${item.id}`)}>
                 <img src={item.thumbnailUrl} alt="diary" />
                 <Photo_date>
                   {item.createdAt ? `${item.createdAt.split("-")[2]}일` : "날짜 없음"}
