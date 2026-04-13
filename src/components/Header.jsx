@@ -93,7 +93,6 @@ const HeaderLeft = styled.div`
   width: 75px;
   height: 35px;
   flex-shrink: 0;
-  cursor: pointer;
 `;
 
 const HeaderMiddle = styled.div`
@@ -108,13 +107,14 @@ const HeaderMiddle = styled.div`
   }
 `;
 
-const MenuText = styled.p`
+const MenuText = styled.button`
   padding: 8px 28px;
   color: #867853;
   font-size: 16px;
   font-weight: 600;
   border-radius: 50px;
   white-space: nowrap;
+  border: none;
   cursor: pointer;
   transition: 0.2s;
   background-color: ${(props) => (props.isActive ? "#FFE39A" : "transparent")};
