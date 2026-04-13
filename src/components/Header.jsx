@@ -10,7 +10,7 @@ const Header = () => {
   const location = useLocation();
 
   const isLogin = !!localStorage.getItem("accessToken");
-  
+
   const [, forceUpdate] = useState(0);
   useEffect(() => {
     const handleStorage = () => forceUpdate((n) => n + 1);
@@ -20,17 +20,37 @@ const Header = () => {
 
   return (
     <HeaderBody>
-      <HeaderLeft onClick={() => navigate("/")}>
+      <HeaderLeft>
         <img src={Logo} alt="HEAR_FOR_YOU" />
       </HeaderLeft>
 
       {/* 로그인 시에만 표시 */}
       {isLogin && (
         <HeaderMiddle>
-          <MenuText onClick={() => navigate("/home")} isActive={location.pathname === "/home"}>홈</MenuText>
-          <MenuText onClick={() => navigate("/ai/chats")} isActive={location.pathname === "/ai/chats"}>AI일기</MenuText>
-          <MenuText onClick={() => navigate("/photobook")} isActive={location.pathname === "/photobook"}>사진첩</MenuText>
-          <MenuText onClick={() => navigate("/statics")} isActive={location.pathname === "/statics"}>통계</MenuText>
+          <MenuText
+            onClick={() => navigate("/home")}
+            isActive={location.pathname === "/home"}
+          >
+            홈
+          </MenuText>
+          <MenuText
+            onClick={() => navigate("/ai/chats")}
+            isActive={location.pathname === "/ai/chats"}
+          >
+            AI일기
+          </MenuText>
+          <MenuText
+            onClick={() => navigate("/photobook")}
+            isActive={location.pathname === "/photobook"}
+          >
+            사진첩
+          </MenuText>
+          <MenuText
+            onClick={() => navigate("/statics")}
+            isActive={location.pathname === "/statics"}
+          >
+            통계
+          </MenuText>
         </HeaderMiddle>
       )}
 
@@ -59,13 +79,13 @@ const HeaderBody = styled.div`
   height: 56px;
   background-color: #fcd671;
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
-  padding: 0 80px; 
+  padding: 0 80px;
   box-sizing: border-box;
 
   @media (max-width: 1024px) {
-    padding: 0 30px; 
+    padding: 0 30px;
   }
 `;
 
@@ -73,11 +93,10 @@ const HeaderLeft = styled.div`
   width: 75px;
   height: 35px;
   flex-shrink: 0;
-  cursor: pointer;
 `;
 
 const HeaderMiddle = styled.div`
-  width: 423px; 
+  width: 423px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -88,20 +107,23 @@ const HeaderMiddle = styled.div`
   }
 `;
 
-const MenuText = styled.p`
+const MenuText = styled.button`
   padding: 8px 28px;
   color: #867853;
   font-size: 16px;
   font-weight: 600;
   border-radius: 50px;
-  white-space: nowrap; 
+  white-space: nowrap;
+  border: none;
   cursor: pointer;
   transition: 0.2s;
   background-color: ${(props) => (props.isActive ? "#FFE39A" : "transparent")};
-  &:hover { background-color: #FFE39A; }
+  &:hover {
+    background-color: #ffe39a;
+  }
 
   @media (max-width: 850px) {
-    padding: 8px 15px; 
+    padding: 8px 15px;
     font-size: 14px;
   }
 `;
@@ -131,7 +153,7 @@ const User_page = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   img {
     width: 100%;
     height: 100%;
