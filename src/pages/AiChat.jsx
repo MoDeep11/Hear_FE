@@ -31,7 +31,6 @@ const AiChat = () => {
 
   const startRecording = async () => {
     try {
-      console.log("🎙️ [startRecording] 음성 녹음 시작...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -39,11 +38,9 @@ const AiChat = () => {
 
       mediaRecorder.ondataavailable = (event) => {
         audioChunksRef.current.push(event.data);
-        console.log("오디오 청크 수신:", event.data.size, "bytes");
       };
 
       mediaRecorder.start();
-      console.log("음성 녹음 시작됨");
     } catch (error) {
       console.error("음성 녹음 시작 실패:", error);
       alert("마이크 접근 권한이 필요합니다.");
@@ -52,12 +49,8 @@ const AiChat = () => {
 
   const stopRecording = () => {
     return new Promise((resolve, reject) => {
-      console.log("음성 녹음 종료...");
-
       if (!mediaRecorderRef.current) {
-        const error = new Error("녹음이 시작되지 않았습니다.");
-        console.error("[stopRecording]", error);
-        reject(error);
+        reject(new Error("녹음이 시작되지 않았습니다."));
         return;
       }
 
@@ -67,21 +60,11 @@ const AiChat = () => {
           type: "audio/webm",
         });
         audioChunksRef.current = [];
-
-        console.log("오디오 Blob 생성:", {
-          size: audioBlob.size,
-          type: audioBlob.type,
-        });
-
         resolve(audioBlob);
       };
 
       mediaRecorder.stop();
-
-      mediaRecorder.stream.getTracks().forEach((track) => {
-        track.stop();
-        console.log("스트림 트랙 종료");
-      });
+      mediaRecorder.stream.getTracks().forEach((track) => track.stop());
     });
   };
 
@@ -89,18 +72,11 @@ const AiChat = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-    console.log("이미지 업로드 시작:", {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-    });
-
     const formData = new FormData();
     formData.append("file", file);
 
     try {
       await createChatImage(chatId, formData);
-      console.log("이미지 업로드 성공");
       alert("이미지가 업로드되었습니다.");
     } catch (error) {
       console.error("이미지 업로드 실패:", error);
@@ -110,39 +86,25 @@ const AiChat = () => {
 
   useEffect(() => {
     const initChat = async () => {
-      console.log("채팅 초기화 시작...");
       setIsLoading(true);
       try {
         const chatData = await createChat();
-
-        console.log("채팅 생성 응답:", chatData);
-
         const newChatId = chatData.chatId;
         const initialMessage =
           chatData.initialMessage || "안녕하세요! 오늘 하루는 어떠셨나요?";
 
-        if (!newChatId) {
-          throw new Error("서버에서 chatId를 받지 못했습니다.");
-        }
+        if (!newChatId) throw new Error("서버에서 chatId를 받지 못했습니다.");
 
-        console.log("🆔 [initChat] chatId 설정:", newChatId);
         setChatId(newChatId);
-
-        const aiGreeting = {
-          id: `ai-greeting-${Date.now()}`,
-          text: initialMessage,
-          isUser: false,
-        };
-
-        setMessages([aiGreeting]);
-        console.log("초기 메시지 설정 완료");
+        setMessages([
+          {
+            id: `ai-greeting-${Date.now()}`,
+            text: initialMessage,
+            isUser: false,
+          },
+        ]);
       } catch (error) {
-        console.error("채팅 초기화 실패:", {
-          message: error?.message,
-          status: error?.response?.status,
-          data: error?.response?.data,
-        });
-
+        console.error("채팅 초기화 실패:", error);
         setMessages([
           {
             id: "error",
@@ -163,14 +125,7 @@ const AiChat = () => {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading || !chatId) {
-      console.warn("전송 불가:", {
-        input_empty: !input.trim(),
-        isLoading,
-        chatId_exists: !!chatId,
-      });
-      return;
-    }
+    if (!input.trim() || isLoading || !chatId) return;
 
     const userMessage = {
       id: `msg-${Date.now()}`,
@@ -178,20 +133,12 @@ const AiChat = () => {
       isUser: true,
     };
 
-    console.log(
-      "메시지 전송:",
-      userMessage.text.substring(0, 50),
-    );
-
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
 
     try {
       const response = await createChatMessage(chatId, { message: input });
-
-      console.log("AI 응답 수신:", response);
-
       const aiResponse = {
         id: `msg-${Date.now() + 1}`,
         text:
@@ -200,7 +147,6 @@ const AiChat = () => {
           "답변을 가져오지 못했습니다.",
         isUser: false,
       };
-
       setMessages((prev) => [...prev, aiResponse]);
     } catch (error) {
       console.error("메시지 전송 실패:", error);
@@ -219,47 +165,63 @@ const AiChat = () => {
 
   const handleClick = async () => {
     if (!isClicked) {
-      console.log("녹음 시작");
       setIsStart(StopVoice);
       setIsClicked(true);
       await startRecording();
     } else {
-      console.log("녹음 종료 및 업로드");
       setIsStart(StartVoice);
       setIsClicked(false);
 
       try {
         const voiceBlob = await stopRecording();
 
-        const url = URL.createObjectURL(voiceBlob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "test-audio.webm";
-        a.click();
-
         if (!voiceBlob || voiceBlob.size === 0) {
           throw new Error("음성 데이터가 없습니다.");
         }
 
-        console.log("오디오 Blob 생성 완료:", {
-          size: voiceBlob.size,
-          type: voiceBlob.type,
-        });
-
         setIsLoading(true);
 
-        console.log("음성 업로드 시작...");
-        await createChatVoice(chatId, voiceBlob);
+        const response = await createChatVoice(chatId, voiceBlob);
+        const data = response?.data || response;
+
+        const userContent = data?.data?.userContent || "";
+        const aiContent = data?.data?.aiContent || "";
+        const aiAudioUrl = data?.data?.aiAudioUrl || "";
+
+        // 사용자 음성 → 텍스트 메시지 추가
+        if (userContent) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Date.now()}`,
+              text: userContent,
+              isUser: true,
+            },
+          ]);
+        }
+
+        // AI 응답 메시지 추가 (텍스트 + 오디오 URL)
+        if (aiContent || aiAudioUrl) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: `msg-${Date.now() + 1}`,
+              text: aiContent,
+              isUser: false,
+              audioUrl: aiAudioUrl,
+            },
+          ]);
+        }
+
+        // AI 음성 자동 재생
+        if (aiAudioUrl) {
+          const audio = new Audio(aiAudioUrl);
+          audio.play().catch((e) => console.error("오디오 재생 실패:", e));
+        }
 
         setIsOpen(false);
-        console.log("음성 업로드 성공");
-        alert("음성이 전송되었습니다.");
       } catch (error) {
-        console.error("음성 업로드 실패:", {
-          message: error?.message,
-          status: error?.response?.status,
-          data: error?.response?.data,
-        });
+        console.error("음성 업로드 실패:", error);
         alert("음성 전송에 실패했습니다: " + error.message);
       } finally {
         setIsLoading(false);
@@ -270,99 +232,126 @@ const AiChat = () => {
   return (
     <Body>
       <Header />
-      <ChatContainer>
-        <ChatBox>
-          {messages.map((msg) =>
-            msg.isUser ? (
-              <UserBubble key={msg.id}>{msg.text}</UserBubble>
-            ) : (
-              <AiBubble key={msg.id}>
-                {msg.text.split("\n").map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    <br />
-                  </span>
-                ))}
-              </AiBubble>
-            ),
-          )}
-          {isLoading && (
-            <AiBubble>
-              답변을 생각 중이에요<LoadingDots>...</LoadingDots>
-            </AiBubble>
-          )}
-          <div ref={bottomRef} />
-        </ChatBox>
-      </ChatContainer>
-
-      <SendFormWrapper>
-        <SendForm>
-          <SendInputBox>
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleImageUpload}
-              accept="image/*"
-              style={{ display: "none" }}
-            />
-            <img
-              src={Plus}
-              alt="첨부"
-              style={{ cursor: "pointer" }}
-              onClick={() => fileInputRef.current?.click()}
-            />
-            <SendText
-              type="text"
-              placeholder={
-                chatId ? "오늘 하루를 들려주세요." : "연결 중입니다..."
-              }
-              value={input}
-              disabled={!chatId || isLoading}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <MicButton onClick={() => setIsOpen(true)} type="button">
-              <img src={Voice} alt="음성입력" />
-            </MicButton>
-          </SendInputBox>
-          <SendButton
-            type="button"
-            onClick={handleSend}
-            disabled={isLoading || !input.trim() || !chatId}
-            style={{ opacity: isLoading || !chatId ? 0.5 : 1 }}
+      <Container>
+        <NextButtonWrapper>
+          <NextButton
+            onClick={() => {
+              /* 다음 페이지 이동 로직 */
+            }}
           >
-            <img src={Send} alt="전송" />
-          </SendButton>
-        </SendForm>
-      </SendFormWrapper>
+            다음 &gt;
+          </NextButton>
+        </NextButtonWrapper>
+        <ChatContainer>
+          <ChatBox>
+            {messages.map((msg) =>
+              msg.isUser ? (
+                <UserBubble key={msg.id}>{msg.text}</UserBubble>
+              ) : (
+                <AiBubble key={msg.id}>
+                  {msg.text.split("\n").map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      <br />
+                    </span>
+                  ))}
+                  {msg.audioUrl && (
+                    <audio
+                      controls
+                      src={msg.audioUrl}
+                      style={{ marginTop: "8px", width: "100%" }}
+                    />
+                  )}
+                </AiBubble>
+              ),
+            )}
+            {isLoading && (
+              <AiBubble>
+                답변을 생각 중이에요<LoadingDots>...</LoadingDots>
+              </AiBubble>
+            )}
+            <div ref={bottomRef} />
+          </ChatBox>
+        </ChatContainer>
 
-      {isOpen && (
-        <ModalOverlay onClick={() => setIsOpen(false)}>
-          <AiVoiceBody onClick={(e) => e.stopPropagation()}>
-            <CloseIcon
-              src={Close}
-              alt="닫기"
-              onClick={() => setIsOpen(false)}
-            />
-            <AiVoiceContainer>
-              <AiCharacterImg src={AiVoice} alt="Ai 음성" />
-              <StartVoiceImg
-                src={isStart}
-                alt="음성 시작"
-                onClick={handleClick}
+        <SendFormWrapper>
+          <SendForm>
+            <SendInputBox>
+              <input
+                ref={fileInputRef}
+                type="file"
+                onChange={handleImageUpload}
+                accept="image/*"
+                style={{ display: "none" }}
               />
-            </AiVoiceContainer>
-          </AiVoiceBody>
-        </ModalOverlay>
-      )}
+              <img
+                src={Plus}
+                alt="첨부"
+                style={{ cursor: "pointer" }}
+                onClick={() => fileInputRef.current?.click()}
+              />
+              <SendText
+                type="text"
+                placeholder={
+                  chatId ? "오늘 하루를 들려주세요." : "연결 중입니다..."
+                }
+                value={input}
+                disabled={!chatId}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <MicButton onClick={() => setIsOpen(true)} type="button">
+                <img src={Voice} alt="음성입력" />
+              </MicButton>
+            </SendInputBox>
+            <SendButton
+              type="button"
+              onClick={handleSend}
+              disabled={isLoading || !input.trim() || !chatId}
+              style={{ opacity: isLoading || !chatId ? 0.5 : 1 }}
+            >
+              <img src={Send} alt="전송" />
+            </SendButton>
+          </SendForm>
+        </SendFormWrapper>
+
+        {isOpen && (
+          <ModalOverlay onClick={() => setIsOpen(false)}>
+            <AiVoiceBody onClick={(e) => e.stopPropagation()}>
+              <CloseIcon
+                src={Close}
+                alt="닫기"
+                onClick={() => setIsOpen(false)}
+              />
+              <AiVoiceContainer>
+                <AiCharacterImg src={AiVoice} alt="Ai 음성" />
+                <StartVoiceImg
+                  src={isStart}
+                  alt="음성 시작"
+                  onClick={handleClick}
+                />
+              </AiVoiceContainer>
+            </AiVoiceBody>
+          </ModalOverlay>
+        )}
+      </Container>
     </Body>
   );
 };
 
+// styled-components 동일 유지
 const Body = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  margin-top: 30px;
 `;
 
 const ChatContainer = styled.div`
@@ -370,7 +359,7 @@ const ChatContainer = styled.div`
   overflow-y: auto;
   padding: 40px 253px 24px;
   @media (max-width: 1024px) {
-    padding: 30px 50px 20px;
+    padding: 20px 50px 20px;
   }
   @media (max-width: 768px) {
     padding: 20px 20px 15px;
@@ -567,6 +556,30 @@ const StartVoiceImg = styled.img`
   height: 60px;
   cursor: pointer;
   margin-top: auto;
+`;
+
+const NextButtonWrapper = styled.div`
+  display: flex;
+  margin-right: 80px;
+  justify-content: flex-end;
+`;
+
+const NextButton = styled.button`
+  background-color: #fcd671;
+  color: #333;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 32px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.2s;
+  &:hover {
+    background-color: #f7c948;
+  }
 `;
 
 export default AiChat;
