@@ -42,8 +42,11 @@ instance.interceptors.response.use(
           failedQueue.push({ resolve, reject });
         })
           .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return instance(originalRequest);
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Authorization: `Bearer ${token}`,
+            };
+            return axios(originalRequest);
           })
           .catch((err) => Promise.reject(err));
       }
@@ -54,29 +57,27 @@ instance.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem("refreshToken");
         const accessToken = localStorage.getItem("accessToken");
+
         if (!refreshToken) {
           throw Object.assign(new Error("Missing refresh token"), {
             response: { status: 401 },
           });
         }
 
-        const refreshHeaders = accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : {};
-
         const res = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/v1/auth/reissue`,
           { refreshToken },
           {
-            headers: refreshHeaders,
+            headers: { Authorization: `Bearer ${accessToken}` },
             timeout: instance.defaults.timeout,
           },
         );
 
-        if (res.data.status === "success") {
+        if (res.data.status === 200 || res.data.message === "SUCCESS") {
           const tokenPayload = res.data.data ?? res.data;
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
             tokenPayload ?? {};
+
           if (!newAccessToken) {
             throw new Error("Token refresh response missing access token");
           }
@@ -87,10 +88,13 @@ instance.interceptors.response.use(
           }
           localStorage.setItem("tokenExpiry", Date.now() + 60 * 60 * 1000);
 
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          processQueue(null, newAccessToken);
+          originalRequest.headers = {
+            ...originalRequest.headers,
+            Authorization: `Bearer ${newAccessToken}`,
+          };
 
-          return instance(originalRequest);
+          processQueue(null, newAccessToken);
+          return axios(originalRequest);
         } else {
           throw new Error("Token refresh failed");
         }
