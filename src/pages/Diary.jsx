@@ -161,9 +161,9 @@ const Diary = () => {
             </DiaryImg>
           </DiaryBox>
 
-          {diary.aiFeedback ? (
+          {diary.aiComment ? (
             <AiFeedbackBox>
-              <AiFeedback>{diary.aiFeedback}</AiFeedback>
+              <AiFeedback>{diary.aiComment}</AiFeedback>
               <AiFeedbackIcon src={Star} alt="AI 피드백" />
             </AiFeedbackBox>
           ) : (
