@@ -7,24 +7,30 @@ const logApiError = (label, error) => {
 };
 
 // 채팅 생성
-export const createChat = async (chatData) => {
+export const createChat = async () => {
   try {
-    const res = await instance.post(`/api/v1/chats`, chatData);
-    return res.data;
+    const res = await instance.post(`/api/v1/chats`);
+    return res.data.data;
   } catch (error) {
-    // 상세 에러 로깅
-    logApiError("채팅 생성 실패:", error);
+    logApiError("채팅 생성 실패", error);
     throw error;
   }
 };
 
 // 채팅 음성 생성
-export const createChatVoice = async (chatId, voiceData) => {
+export const createChatVoice = async (chatId, voiceBlob) => {
   try {
-    const res = await instance.post(`/api/v1/chats/${chatId}/voice`, voiceData);
-    return res.data;
+    const formData = new FormData();
+    formData.append("voice", voiceBlob, "voice.webm");
+
+    const res = await instance.post(`/api/v1/chats/${chatId}/voice`, formData, {
+      headers: {
+        "Content-Type": undefined,
+      },
+    });
+    return res.data.data || res.data;
   } catch (error) {
-   logApiError("음성 생성 실패:", error); 
+    logApiError("음성 생성 실패:", error);
     throw error;
   }
 };
@@ -36,9 +42,42 @@ export const createChatMessage = async (chatId, messageData) => {
       `/api/v1/chats/${chatId}/messages`,
       messageData,
     );
-    return res.data;
+    return res.data.data;
   } catch (error) {
-    logApiError("메시지 전송 실패:", error);
+    logApiError("메시지 전송 실패", error);
+    throw error;
+  }
+};
+
+// 대화 중 사진 추가
+export const createChatImage = async (chatId, imageFormData) => {
+  try {
+    const res = await instance.post(
+      `/api/v1/chats/${chatId}/images`,
+      imageFormData,
+      {
+        headers: {
+          "Content-Type": undefined,
+        },
+      },
+    );
+    return res.data.data || res.data;
+  } catch (error) {
+    logApiError("이미지 생성 실패:", error);
+    throw error;
+  }
+};
+
+// AI 이미지 생성 요청
+export const createChatImageGeneration = async (chatId, generationData) => {
+  try {
+    const res = await instance.post(
+      `/api/v1/chats/${chatId}/images/generations`,
+      generationData,
+    );
+    return res.data.data || res.data;
+  } catch (error) {
+    logApiError("이미지 생성 실패:", error);
     throw error;
   }
 };
@@ -54,30 +93,11 @@ export const updateChat = async (chatId) => {
   }
 };
 
-// 대화 중 사진 추가
-export const createChatImage = async (chatId, imageData) => {
-  try {
-    const res = await instance.post(
-      `/api/v1/chats/${chatId}/images`,
-      imageData,
-    );
-    return res.data;
-  } catch (error) {
-    logApiError("이미지 생성 실패:", error);
-    throw error;
-  }
-};
-
-// AI 이미지 생성 요청
-export const createChatImageGeneration = async (chatId, generationData) => {
-  try {
-    const res = await instance.post(
-      `/api/v1/chats/${chatId}/images/generations`,
-      generationData,
-    );
-    return res.data;
-  } catch (error) {
-    logApiError("이미지 생성 실패:", error);
-    throw error;
-  }
+export default {
+  createChat,
+  createChatVoice,
+  createChatMessage,
+  createChatImage,
+  createChatImageGeneration,
+  updateChat,
 };
